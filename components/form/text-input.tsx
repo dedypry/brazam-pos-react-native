@@ -8,6 +8,7 @@ import {
   FormControlHelper,
   FormControlHelperText,
   FormControlLabel,
+  FormControlLabelAstrick,
   FormControlLabelText,
 } from "../ui/form-control";
 import { AlertCircleIcon } from "../ui/icon";

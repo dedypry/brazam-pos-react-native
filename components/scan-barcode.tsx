@@ -9,11 +9,7 @@ export default function ScanBarcode({ onScan }: Props) {
   const [permission, requestPermission] = useCameraPermissions();
 
   if (!permission?.granted) {
-    return (
-      <Button onPress={requestPermission}>
-        <ButtonText>Allow Camera</ButtonText>
-      </Button>
-    );
+    requestPermission();
   }
   return (
     <View className="flex-1">

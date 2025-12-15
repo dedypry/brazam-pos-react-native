@@ -278,7 +278,7 @@ export default function ProductAdd() {
               />
             </VStack>
           </Card>
-          <Accordion className="mt-2" defaultValue={["show"]}>
+          <Accordion className="mt-2" >
             <AccordionItem value="show">
               <AccordionHeader>
                 <AccordionTrigger>

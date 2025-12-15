@@ -27,7 +27,6 @@ import Animated, { BounceIn } from "react-native-reanimated";
 
 export default function SalesTab() {
   const { carts } = useAppSelector((state) => state.cart);
-  const [isAddProduct, seAddProduct]=useState(false)
   const [isScanBarcode, setScanBarcode] = useState(false);
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
@@ -64,14 +63,16 @@ export default function SalesTab() {
   }
 
   async function handleScan(val: string) {
-    console.log("DEBOUNDE", val);
     try {
       const product = await knex("products").where("barcode", val).first();
       await playScanSound();
       if (product) {
         const cart = await knex<SalesModel>("sales")
           .where("product_id", product.id)
+          .where("status",'pending')
           .first();
+
+          console.log("CART", cart)
 
         if (cart) {
           await knex<SalesModel>("sales")
@@ -93,17 +94,22 @@ export default function SalesTab() {
           "Silakan daftarkan produk terlebih dahulu",
           [
             {
+              text: "Batal",
+              style: "cancel",
+              onPress: () => {
+                console.log("Cancel");
+              },
+            },
+            {
               text: "Daftarkan Product",
               onPress: () => {
-                dispatch(setBarcode(val))
-                router.push("/pages/product/add")
+                dispatch(setBarcode(val));
+                router.push("/pages/product/add");
               },
             },
           ]
         );
-
       }
-      console.log("PRODUCT", product);
     } catch (error) {
       console.error(error);
     }

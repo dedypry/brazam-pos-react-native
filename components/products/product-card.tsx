@@ -74,7 +74,7 @@ export default function ProductCard({
                   Rp {formatNumber(product.price)}
                 </Text>
                 <Text className="text-xs font-semibold text-nowrap flex-1">
-                  {product.stock} in stock
+                  {product.is_stock ? `${product.stock} in stock` : ""}
                 </Text>
               </HStack>
             </VStack>
@@ -92,52 +92,52 @@ export default function ProductCard({
   }
 
   return (
-        <TouchableOpacity
-          onPressIn={handlePressIn}
-          onPressOut={handlePressOut}
-          onLongPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            onLongPress?.();
+    <TouchableOpacity
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      onLongPress={() => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        onLongPress?.();
+      }}
+      activeOpacity={0.9}
+    >
+      <Card className="p-0 relative">
+        <Image
+          source={{
+            uri: product.photos[0],
           }}
-          activeOpacity={0.9}
-        >
-          <Card className="p-0 relative">
-            <Image
-              source={{
-                uri: product.photos[0],
+          className="mb-2 h-[120px] w-full rounded-md"
+          alt="image"
+        />
+        {isSelected && isSales && (
+          <View className="absolute bg-green-300/40 h-[120px] w-full rounded-md">
+            <Center className="flex-1">
+              <CheckCheckIcon size={50} color={colors.white} />
+            </Center>
+          </View>
+        )}
+
+        <VStack className="px-3 pb-3">
+          <Text className="text-md font-semibold">{product.name}</Text>
+
+          <Text className="text-xs">{product.category}</Text>
+
+          <HStack className="justify-between items-center">
+            <Text className="text-md font-bold text-[#4ECDC4]">
+              Rp {formatNumber(product.price)}
+            </Text>
+            <Text
+              className="text-2xs font-semibold"
+              style={{
+                color: product?.stock! > 10 ? "#10B981" : "#EF4444",
               }}
-              className="mb-2 h-[120px] w-full rounded-md"
-              alt="image"
-            />
-            {isSelected && isSales && (
-              <View className="absolute bg-green-300/40 h-[120px] w-full rounded-md">
-                <Center className="flex-1">
-                  <CheckCheckIcon size={50} color={colors.white} />
-                </Center>
-              </View>
-            )}
-
-            <VStack className="px-3 pb-3">
-              <Text className="text-md font-semibold">{product.name}</Text>
-
-              <Text className="text-xs">{product.category}</Text>
-
-              <HStack className="justify-between items-center">
-                <Text className="text-md font-bold text-[#4ECDC4]">
-                  Rp {formatNumber(product.price)}
-                </Text>
-                <Text
-                  className="text-2xs font-semibold"
-                  style={{
-                    color: product?.stock! > 10 ? "#10B981" : "#EF4444",
-                  }}
-                >
-                  Stok {product.stock}
-                </Text>
-              </HStack>
-            </VStack>
-            <View className="px-3 pb-3">
-              {/* {isSales && isSelected && (
+            >
+              {product.is_stock ? `${product.stock} in stock` : ""}
+            </Text>
+          </HStack>
+        </VStack>
+        <View className="px-3 pb-3">
+          {/* {isSales && isSelected && (
                 <FormNumberInput
                   value={qty.toString()}
                   prefix={
@@ -172,8 +172,8 @@ export default function ProductCard({
                   isTextCenter
                 />
               )} */}
-            </View>
-          </Card>
-        </TouchableOpacity>
+        </View>
+      </Card>
+    </TouchableOpacity>
   );
 }
