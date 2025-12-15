@@ -1,7 +1,6 @@
 import ButtonComplete from "@/components/carts/button-complete";
 import CartItem from "@/components/carts/cart-item";
 import HeaderTitle from "@/components/header-title";
-import SafeArea, { SafeBackground } from "@/components/safe-area";
 import {
   Button,
   ButtonGroup,
@@ -36,21 +35,20 @@ export default function SalesTab() {
 
   return (
     <>
-      <SafeArea />
+      <View className="pt-14 bg-white pb-4">
+        <HeaderTitle
+          gradient={["#45B7D1", "#4ECDC4"]}
+          title="Sales"
+          icon={Plus}
+          subtitle={`1 items in inventory`}
+          onPress={() => router.push("/product-modal")}
+        />
+      </View>
       <ScrollView
         style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
         stickyHeaderIndices={[0]}
       >
-        <SafeBackground>
-          <HeaderTitle
-            gradient={["#45B7D1", "#4ECDC4"]}
-            title="Sales"
-            icon={Plus}
-            subtitle={`1 items in inventory`}
-            onPress={() => router.push("/product-modal")}
-          />
-        </SafeBackground>
         <View className="pt-5">
           {carts.length === 0 ? (
             <Center className="flex-1 pt-52">
@@ -83,23 +81,6 @@ export default function SalesTab() {
                     <ButtonText>Add Products</ButtonText>
                   </Button>
                 </ButtonGroup>
-                {/* <TouchableOpacity onPress={() => router.push("/product-modal")}>
-                  <LinearGradient
-                    colors={["#FF6B6B", "#FF8E8E"]}
-                    style={{
-                      paddingHorizontal: 32,
-                      paddingVertical: 16,
-                      borderRadius: 25,
-                      flexDirection: "row",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Plus size={20} color="white" style={{ marginRight: 8 }} />
-                    <Text className="text-white text-lg font-semibold">
-                      Add Products
-                    </Text>
-                  </LinearGradient>
-                </TouchableOpacity> */}
               </Animated.View>
             </Center>
           ) : (

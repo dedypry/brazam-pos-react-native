@@ -1,9 +1,10 @@
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setCart } from "@/store/slices/cart/cart-slice";
-import { LinearGradient } from "expo-linear-gradient";
-import { CreditCard } from "lucide-react-native";
-import { Alert, TouchableOpacity, useColorScheme, View } from "react-native";
-import { Text } from "../ui/text";
+import { Alert, useColorScheme, View } from "react-native";
+import { Button, ButtonText } from "../ui/button";
+import { Heading } from "../ui/heading";
+import { HStack } from "../ui/hstack";
+import { VStack } from "../ui/vstack";
 
 export default function ButtonComplete() {
   const { carts } = useAppSelector((state) => state.cart);
@@ -54,125 +55,19 @@ export default function ButtonComplete() {
   if (carts.length === 0) return null;
 
   return (
-    <View
-      style={{
-        position: "absolute",
-        bottom: 0,
-        left: 0,
-        right: 0,
-        backgroundColor: isDark ? "#121212" : "#FFFFFF",
-        borderTopWidth: 1,
-        borderTopColor: isDark ? "rgba(255, 255, 255, 0.1)" : "#E5E7EB",
-        paddingHorizontal: 24,
-        paddingTop: 20,
-      }}
-    >
-      <View style={{ marginBottom: 16 }}>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            marginBottom: 8,
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 14,
-              color: isDark ? "rgba(255, 255, 255, 0.6)" : "#6B7280",
-            }}
-          >
-            Subtotal
-          </Text>
-          <Text
-            style={{
-              fontSize: 14,
-              fontWeight: "600",
-              color: isDark ? "rgba(255, 255, 255, 0.9)" : "#1F2937",
-            }}
-          >
-            Rp {calculateSubtotal().toFixed(2)}
-          </Text>
-        </View>
-
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            marginBottom: 8,
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 14,
-              color: isDark ? "rgba(255, 255, 255, 0.6)" : "#6B7280",
-            }}
-          >
-            Tax (8%)
-          </Text>
-          <Text
-            style={{
-              fontSize: 14,
-              fontWeight: "600",
-              color: isDark ? "rgba(255, 255, 255, 0.9)" : "#1F2937",
-            }}
-          >
-            Rp {calculateTax().toFixed(2)}
-          </Text>
-        </View>
-
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            paddingTop: 8,
-            borderTopWidth: 1,
-            borderTopColor: isDark ? "rgba(255, 255, 255, 0.1)" : "#E5E7EB",
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 18,
-              fontWeight: "700",
-              color: isDark ? "rgba(255, 255, 255, 0.9)" : "#1F2937",
-            }}
-          >
-            Total
-          </Text>
-          <Text
-            style={{
-              fontSize: 18,
-              fontWeight: "700",
-              color: "#45B7D1",
-            }}
-          >
+    <View className="absolute bottom-0 w-full px-5 py-3">
+      <HStack className="pb-2 items-center bg-white p-4 rounded-md shadow-sm">
+        <VStack className="flex-1 pr-10">
+          <Heading size="sm">Total</Heading>
+          <Heading size="md" className="text-success-300">
+            {" "}
             Rp {calculateTotal().toFixed(2)}
-          </Text>
-        </View>
-      </View>
-
-      <TouchableOpacity onPress={handleCheckout}>
-        <LinearGradient
-          colors={["#10B981", "#34D399"]}
-          style={{
-            paddingVertical: 16,
-            borderRadius: 16,
-            flexDirection: "row",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <CreditCard size={20} color="white" style={{ marginRight: 8 }} />
-          <Text
-            style={{
-              color: "white",
-              fontSize: 18,
-              fontWeight: "700",
-            }}
-          >
-            Complete Sale
-          </Text>
-        </LinearGradient>
-      </TouchableOpacity>
+          </Heading>
+        </VStack>
+        <Button>
+          <ButtonText>Selesaikan</ButtonText>
+        </Button>
+      </HStack>
     </View>
   );
 }

@@ -1,14 +1,16 @@
+ 
 import HeaderTitle from "@/components/header-title";
 import ChipCategories from "@/components/products/chip-categories";
 import ProductCard from "@/components/products/product-card";
-import SafeArea, { SafeBackground } from "@/components/safe-area";
 import SearchBar from "@/components/search-bar";
 import { Grid, GridItem } from "@/components/ui/grid";
-import { useAppSelector } from "@/store/hooks";
-import { LinearGradient } from "expo-linear-gradient";
+import { VStack } from "@/components/ui/vstack";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { getProduct } from "@/store/slices/product/product-action";
+import { router } from "expo-router";
 import { Plus } from "lucide-react-native";
-import { useState } from "react";
-import { useColorScheme, View } from "react-native";
+import { useEffect, useState } from "react";
+import { View } from "react-native";
 import Animated, {
   Extrapolation,
   interpolate,
@@ -21,12 +23,15 @@ export default function ProductTab() {
   const { products, viewMode } = useAppSelector((state) => state.product);
   const [searchQuery, setSearchQuery] = useState("");
   const scrollY = useSharedValue(0);
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(getProduct());
+  }, []);
 
   const onScroll = useAnimatedScrollHandler({
     onScroll: (e) => {
-      console.log("SCROLL", e.contentOffset.y);
       scrollY.value = e.contentOffset.y;
     },
   });
@@ -34,54 +39,41 @@ export default function ProductTab() {
   const headerAnimationStyle = useAnimatedStyle(() => {
     const height = interpolate(
       scrollY.value,
-      [82, 120],
       [0, 60],
+      [60, 0],
       Extrapolation.CLAMP
     );
 
-    console.log("heigh", height);
-    return { paddingTop: height };
+    return { height };
   });
+  const productStyle = useAnimatedStyle(() => {
+    const top = interpolate(
+      scrollY.value,
+      [0, 100],
+      [0, -100],
+      Extrapolation.CLAMP
+    );
 
-  const AnimatedGradient = Animated.createAnimatedComponent(LinearGradient);
+    return { top: top };
+  });
 
   return (
     <>
-      <SafeArea />
-      <Animated.ScrollView
-        onScroll={onScroll}
-        style={{ flex: 1 }}
-        showsVerticalScrollIndicator={false}
-        stickyHeaderIndices={[1]}
-      >
-        <SafeBackground noPadding>
-          <HeaderTitle
-            title="Product"
-            icon={Plus}
-            subtitle={`${products.length} items in inventory`}
-            onPress={() => {}}
-          />
-        </SafeBackground>
-
-        <View>
-          <LinearGradient
-            colors={
-              isDark
-                ? [
-                    "rgba(0,0,0,1)", // atas lebih gelap
-                    "rgba(0,0,0,0)", // bawah lebih terang
-                  ]
-                : [
-                    "rgba(255,255,255,1)", // atas putih pekat
-                    "rgba(255,255,255,0)", // bawah transparan
-                  ]
-            }
-            style={{
-              gap: 5,
-              paddingTop: 20,
-              paddingHorizontal: 20,
-            }}
-          >
+      <View className="bg-white pt-12 pb-3">
+        <VStack>
+          <Animated.View style={headerAnimationStyle}>
+            <Animated.View
+              style={[{ position: "absolute", width: "100%" }, productStyle]}
+            >
+              <HeaderTitle
+                title="Product"
+                icon={Plus}
+                subtitle={`${products.length} items in inventory`}
+                onPress={() => router.push("/pages/product/add")}
+              />
+            </Animated.View>
+          </Animated.View>
+          <VStack className="gap-2 px-5">
             <SearchBar
               value={searchQuery}
               onChangeText={setSearchQuery}
@@ -89,25 +81,15 @@ export default function ProductTab() {
             />
 
             <ChipCategories />
-          </LinearGradient>
-          {/* <Animated.View style={headerAnimationStyle}>
-            <VStack className="gap-4">
-              <SearchBar
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-                placeholder="Search Product..."
-              />
-
-              <ChipCategories />
-            </VStack>
-          </Animated.View> */}
-          {/* <ChipCategories /> */}
-        </View>
-        {/* <View>
-        <Animated.View>
-        </Animated.View>
-      </View> */}
-
+          </VStack>
+        </VStack>
+      </View>
+      <Animated.ScrollView
+        onScroll={onScroll}
+        style={{ flex: 1 }}
+        showsVerticalScrollIndicator={false}
+        stickyHeaderIndices={[1]}
+      >
         <Grid _extra={{ className: "grid-cols-2" }} className="gap-2 mt-5 px-5">
           {products.map((product, index) => (
             <GridItem
@@ -120,22 +102,7 @@ export default function ProductTab() {
                 product={product}
                 index={index}
                 viewMode={viewMode}
-              />
-            </GridItem>
-          ))}
-        </Grid>
-        <Grid _extra={{ className: "grid-cols-2" }} className="gap-2 mt-5 px-5">
-          {products.map((product, index) => (
-            <GridItem
-              key={product.id}
-              _extra={{
-                className: viewMode === "grid" ? "col-span-1" : "col-span-2",
-              }}
-            >
-              <ProductCard
-                product={product}
-                index={index}
-                viewMode={viewMode}
+                onPress={() => router.push(`/pages/product/${product.id}`)}
               />
             </GridItem>
           ))}

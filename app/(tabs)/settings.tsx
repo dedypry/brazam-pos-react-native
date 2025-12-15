@@ -1,5 +1,4 @@
 import HeaderTitle from "@/components/header-title";
-import SafeArea, { SafeBackground } from "@/components/safe-area";
 import SettingItem from "@/components/settings/setting-item";
 import SettingSection from "@/components/settings/setting-section";
 import {
@@ -25,15 +24,13 @@ export default function SettingTab() {
   const isDark = colorScheme === "dark";
   return (
     <>
-      <SafeArea />
+      <View className="pt-14 pb-4 bg-white">
+        <HeaderTitle title="Settings" subtitle="Configure your POS system" />
+      </View>
       <ScrollView
         style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
-        stickyHeaderIndices={[0]}
       >
-        <SafeBackground>
-          <HeaderTitle title="Settings" subtitle="Configure your POS system" />
-        </SafeBackground>
         <View className="px-5 mt-5">
           <SettingSection title="Store">
             <SettingItem

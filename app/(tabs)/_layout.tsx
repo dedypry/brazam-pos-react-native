@@ -9,7 +9,7 @@ import {
   LayoutDashboard,
   Package,
   Settings,
-  ShoppingCart,
+  ShoppingCart
 } from "lucide-react-native";
 
 export default function TabLayout() {

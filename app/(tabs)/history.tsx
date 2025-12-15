@@ -2,7 +2,6 @@ import FilterCategory from "@/components/filter-categories";
 import HeaderTitle from "@/components/header-title";
 import StatCard from "@/components/histories/stat-card";
 import TransactionCard from "@/components/histories/transaction-card";
-import SafeArea, { SafeBackground } from "@/components/safe-area";
 import SearchBar from "@/components/search-bar";
 import { Center } from "@/components/ui/center";
 import { Text } from "@/components/ui/text";
@@ -13,13 +12,34 @@ import {
   setSelectedFilter,
 } from "@/store/slices/transaction/transaction-slice";
 import { Receipt } from "lucide-react-native";
+import { useState } from "react";
 import { ScrollView, useColorScheme, View } from "react-native";
+import Animated, {
+  Extrapolation,
+  interpolate,
+  interpolateColor,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+} from "react-native-reanimated";
+import { runOnJS } from "react-native-worklets";
 
 export default function HistoryTab() {
   const { todayStats, filters, selectedFilter, transactions, searchQuery } =
     useAppSelector((state) => state.transaction);
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
+  const scrollY = useSharedValue(0);
+  const [isGrey, setIsGrey] = useState(false);
+
+  const onScroll = useAnimatedScrollHandler({
+    onScroll: (e) => {
+      console.log("SCROLL", e.contentOffset.y);
+      scrollY.value = e.contentOffset.y;
+
+      runOnJS(setIsGrey)(scrollY.value > 257);
+    },
+  });
 
   const dispatch = useAppDispatch();
 
@@ -53,22 +73,77 @@ export default function HistoryTab() {
     return matchesSearch;
   });
 
+  const heightStyle = useAnimatedStyle(() => {
+    const paddingTop = interpolate(
+      scrollY.value,
+      [140, 170],
+      [0, 30],
+      Extrapolation.CLAMP
+    );
+
+     const color = interpolateColor(
+       scrollY.value,
+       [280, 315],
+       ["#ffffff", "#05A0C0"]
+     );
+
+    return {
+      paddingTop,
+      backgroundColor: color,
+    };
+  });
+
+  const topStyle = useAnimatedStyle(() => {
+    const top = interpolate(
+      scrollY.value,
+      [200, 325],
+      [0, -120],
+      Extrapolation.CLAMP
+    );
+    const color = interpolateColor(
+      scrollY.value,
+      [280, 315],
+      ["#ffffff", "#05A0C0"]
+    );
+
+    return { top, backgroundColor: color };
+  });
+
+  const colorStyle = useAnimatedStyle(() => {
+    const color = interpolateColor(
+      scrollY.value,
+      [280, 321],
+      ["transparent", "#05A0C0"]
+    );
+
+    return { backgroundColor: color };
+  });
   return (
     <>
-      <SafeArea />
-      <ScrollView
+      <Animated.View
+        className="pt-14 pb-4 absolute w-full z-30"
+        style={topStyle}
+      >
+        <HeaderTitle
+          title="Transaction History"
+          subtitle="5 total transactions"
+        />
+      </Animated.View>
+      <Animated.View style={heightStyle} />
+      <Animated.ScrollView
+        onScroll={onScroll}
         style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
-        stickyHeaderIndices={[0, 2]}
+        stickyHeaderIndices={[1]}
+        contentContainerStyle={{
+          paddingTop: 120,
+
+        }}
       >
-        <SafeBackground>
-          <HeaderTitle
-            title="Transaction History"
-            subtitle="5 total transactions"
-          />
-        </SafeBackground>
-        <View className="pl-5 pt-5">
+        
+        <View className="pt-5">
           <Text
+            className="pl-5"
             style={{
               fontSize: 18,
               fontWeight: "700",
@@ -84,8 +159,8 @@ export default function HistoryTab() {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{
               paddingRight: 10,
-              paddingVertical: 5,
-              paddingLeft: 5,
+              paddingBottom: 5,
+              paddingLeft: 20,
             }}
           >
             {todayStats.map((stat, index) => (
@@ -93,18 +168,24 @@ export default function HistoryTab() {
             ))}
           </ScrollView>
         </View>
-        <VStack className="px-5 gap-4 pt-5">
-          <SearchBar
-            value={searchQuery}
-            onChangeText={(val) => dispatch(setSearchQuery(val))}
-            placeholder="Search by transaction ID or customer..."
-          />
-          <FilterCategory
-            data={filters}
-            selected={selectedFilter}
-            setSelected={(val) => dispatch(setSelectedFilter(val.id))}
-          />
-        </VStack>
+        <View>
+          <Animated.View style={colorStyle}>
+            <VStack className="px-5 gap-1 pt-5 pb-2">
+              <SearchBar
+                value={searchQuery}
+                onChangeText={(val) => dispatch(setSearchQuery(val))}
+                placeholder="Search by transaction ID or customer..."
+                className="bg-white"
+              />
+              <FilterCategory
+                data={filters}
+                selected={selectedFilter}
+                setSelected={(val) => dispatch(setSelectedFilter(val.id))}
+              />
+            </VStack>
+          </Animated.View>
+        </View>
+
         <VStack className="mt-5 px-5">
           <Text className="text-xl font-bold mb-3">Recent Transactions</Text>
 
@@ -131,7 +212,7 @@ export default function HistoryTab() {
             ))
           )}
         </VStack>
-      </ScrollView>
+      </Animated.ScrollView>
     </>
   );
 }

@@ -42,16 +42,18 @@ export default function ProductModal() {
   }
   return (
     <VStack className="px-5 gap-2 mt-2">
-      <HStack className="justify-between pt-14">
+      <HStack className="justify-between pt-6 pb-2">
         <Heading>Add Product</Heading>
         <Pressable onPress={()=>router.back()}>
           <X />
         </Pressable>
       </HStack>
+      
       <SearchBar
         placeholder="Search products..."
         value={searchQuery}
         onChangeText={setSearchQuery}
+        className="bg-gray-200"
       />
 
       <ScrollView showsVerticalScrollIndicator={false}>

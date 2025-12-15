@@ -1,6 +1,6 @@
 import { ITrxTodayStat } from "@/utils/interfaces/product";
 import { TrendingDown, TrendingUp } from "lucide-react-native";
-import { useColorScheme, View } from "react-native";
+import { View } from "react-native";
 import { Card } from "../ui/card";
 import { Text } from "../ui/text";
 
@@ -10,20 +10,9 @@ export default function StatCard({
   change,
   isPositive,
 }: ITrxTodayStat) {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
 
   return (
-    <Card
-      className="rounded-xl p-5 mr-2 min-w-36"
-      style={{
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: isDark ? 0.3 : 0.1,
-        shadowRadius: 8,
-        elevation: 3,
-      }}
-    >
+    <Card className="rounded-xl p-5 mr-2 min-w-36">
       <Text className="text-xs font-semibold mb-2 uppercase tracking-wider">
         {title}
       </Text>

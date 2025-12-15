@@ -1,5 +1,10 @@
+import { formatNumber } from "@/utils/helpers/formater";
 import { IProduct } from "@/utils/interfaces/product";
-import { MoreVertical } from "lucide-react-native";
+import * as Haptics from "expo-haptics";
+import {
+  MoreVertical
+} from "lucide-react-native";
+import { useState } from "react";
 import { TouchableOpacity, useColorScheme } from "react-native";
 import Animated, {
   BounceIn,
@@ -19,13 +24,16 @@ interface Props {
   index: number;
   viewMode?: "list" | "grid";
   onPress?: () => void;
+  onLongPress?: () => void;
 }
 export default function ProductCard({
   product,
   index,
   viewMode = "grid",
   onPress,
+  onLongPress,
 }: Props) {
+  const [menuOpen, setMenuOpen] = useState(false);
   const scale = useSharedValue(1);
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
@@ -58,7 +66,7 @@ export default function ProductCard({
           <Card className="p-0 rounded-lg">
             <HStack className="items-center">
               <Image
-                source={{ uri: product.image }}
+                source={{ uri: product.photos[0] }}
                 className="rounded-lg w-28 aspect-square"
                 style={{
                   backgroundColor: isDark ? "#2D2D2D" : "#F3F4F6",
@@ -70,7 +78,7 @@ export default function ProductCard({
                 <Text className="text-xs">{product.category}</Text>
                 <HStack className="gap-2 items-end">
                   <Text className="text-[#4ECDC4] text-lg font-bold">
-                    Rp {product.price}
+                    Rp {formatNumber(product.price)}
                   </Text>
                   <Text className="text-xs font-semibold text-nowrap flex-1">
                     {product.stock} in stock
@@ -99,12 +107,17 @@ export default function ProductCard({
       <TouchableOpacity
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
+        onLongPress={() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          setMenuOpen(true);
+          onLongPress?.();
+        }}
         activeOpacity={0.9}
       >
         <Card className="p-0">
           <Image
             source={{
-              uri: product.image,
+              uri: product.photos[0],
             }}
             className="mb-6 h-[120px] w-full rounded-md"
             alt="image"
@@ -116,12 +129,12 @@ export default function ProductCard({
 
             <HStack className="justify-between flex-1">
               <Text className="text-md font-bold text-[#4ECDC4]">
-                Rp {product.price}
+                Rp {formatNumber(product.price)}
               </Text>
               <Text
                 className="text-2xs font-semibold"
                 style={{
-                  color: product.stock > 10 ? "#10B981" : "#EF4444",
+                  color: product?.stock! > 10 ? "#10B981" : "#EF4444",
                 }}
               >
                 {product.stock} left

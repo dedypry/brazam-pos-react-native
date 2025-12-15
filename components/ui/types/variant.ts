@@ -1,0 +1,1 @@
+export type IVariant = "paded" | "underlined" | "outline" | "rounded" | undefined
