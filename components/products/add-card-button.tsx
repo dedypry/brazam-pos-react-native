@@ -13,15 +13,18 @@ import { Heading } from "../ui/heading";
 import { HStack } from "../ui/hstack";
 import { CloseIcon, Icon } from "../ui/icon";
 import {
-    Modal,
-    ModalBackdrop,
-    ModalBody,
-    ModalCloseButton,
-    ModalContent,
-    ModalHeader,
+  Modal,
+  ModalBackdrop,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
 } from "../ui/modal";
 
-export default function AddCardButton() {
+interface Props {
+  id?: string;
+}
+export default function AddCardButton({ id }: Props) {
   const [permission, requestPermission] = useCameraPermissions();
   const [showModal, setShowModal] = useState(false);
 
@@ -29,15 +32,13 @@ export default function AddCardButton() {
 
   async function handleCamera() {
     if (!permission?.granted) {
-      // 2️⃣ Masih boleh nanya
       if (permission?.canAskAgain) {
         const result = await requestPermission();
 
         if (!result.granted) {
-          return; // jangan tutup modal
+          return;
         }
       } else {
-        // 3️⃣ Sudah ditolak permanen
         Alert.alert(
           "Camera Permission",
           "Camera access is required. Please enable it in Settings.",
@@ -54,7 +55,10 @@ export default function AddCardButton() {
     }
 
     setShowModal(false);
-    router.push("/pages/product/camera-screen");
+    router.push({
+      pathname: "/pages/product/camera-screen",
+      params: { id },
+    });
   }
 
   async function pickFromGallery() {

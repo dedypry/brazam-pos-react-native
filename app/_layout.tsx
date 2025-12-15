@@ -7,6 +7,8 @@ import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import createTables from "@/db/migrations/product.migration";
 import "@/global.css";
 import { persistor, store } from "@/store";
+import { setupNotificationChannel } from "@/utils/configs/notifucation";
+import * as Notifications from "expo-notifications";
 import { useEffect } from "react";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
@@ -17,7 +19,9 @@ export const unstable_settings = {
 
 export default function RootLayout() {
   useEffect(() => {
+    setupNotificationChannel();
     createTables();
+    Notifications.requestPermissionsAsync();
   }, []);
   return (
     <Provider store={store}>
@@ -29,6 +33,13 @@ export default function RootLayout() {
               <Stack.Screen
                 name="modal"
                 options={{ presentation: "modal", title: "Modal" }}
+              />
+              <Stack.Screen
+                name="pages/product/scan-barcode"
+                options={{
+                  presentation: "modal",
+                  headerShown: false,
+                }}
               />
               <Stack.Screen
                 name="product-modal"

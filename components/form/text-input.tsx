@@ -26,6 +26,8 @@ export interface PropsTextInputCustom extends TextInputProps {
   errorMessage?: string;
   textHelper?: string;
   variant?: IVariant;
+  size?: "sm" | "md" | "lg" | "xl" | undefined;
+  isTextCenter?: boolean;
 }
 
 export default function FormTextInput({
@@ -39,6 +41,8 @@ export default function FormTextInput({
   isRequired,
   textHelper,
   variant,
+  size = "lg",
+  isTextCenter,
   ...inputProps
 }: PropsTextInputCustom) {
   return (
@@ -54,9 +58,12 @@ export default function FormTextInput({
             <FormControlLabelText>{label}</FormControlLabelText>
           </FormControlLabel>
         )}
-        <Input variant={variant} size="lg">
+        <Input variant={variant} size={size}>
           {prefix}
-          <InputField {...(inputProps as any)} />
+          <InputField
+            className={isTextCenter ? "text-center" : ""}
+            {...(inputProps as any)}
+          />
           {suppix}
         </Input>
 

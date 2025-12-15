@@ -2,16 +2,18 @@ import { Center } from "@/components/ui/center";
 import { useAppDispatch } from "@/store/hooks";
 import { setPhotoProduct } from "@/store/slices/product/product-slice";
 import { CameraType, CameraView } from "expo-camera";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useRef, useState } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 
 export default function CameraScreen() {
+  const { id } = useLocalSearchParams<{ id?: string }>();
   const cameraRef = useRef<CameraView>(null);
   const [facing] = useState<CameraType>("back");
 
-  const dispatch = useAppDispatch();
+  console.log("ID", id);
 
+  const dispatch = useAppDispatch();
 
   async function takePhoto() {
     if (!cameraRef.current) return;
@@ -23,12 +25,13 @@ export default function CameraScreen() {
     dispatch(setPhotoProduct(photo.uri));
     router.replace({
       pathname: "/pages/product/add",
+      params: { id, cameraBack: 1 },
     });
   }
   return (
     <View style={styles.container}>
       <CameraView ref={cameraRef} style={styles.camera} facing={facing} />
-      <View className="absolute bottom-3 w-full">
+      <View className="absolute bottom-3 w-full pb-4">
         <TouchableOpacity onPress={takePhoto}>
           <Center>
             <View className="bg-white w-20 aspect-square rounded-full shadow-md" />

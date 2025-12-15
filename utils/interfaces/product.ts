@@ -16,14 +16,20 @@ export interface IProduct {
   category?: string | null;
   uom?: string | null;
   sku?: string | null;
+  barcode?: string | null;
 
   created_at?: string;
   updated_at?: string;
 }
 
-export interface IProductItem {
+export interface ISales {
   id: number;
   quantity: number;
+  product: IProduct;
+}
+export interface IProductItem {
+  quantity: number;
+  id: number;
   name: string;
   image: string;
   price: string;

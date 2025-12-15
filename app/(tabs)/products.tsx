@@ -1,14 +1,18 @@
- 
 import HeaderTitle from "@/components/header-title";
 import ChipCategories from "@/components/products/chip-categories";
 import ProductCard from "@/components/products/product-card";
 import SearchBar from "@/components/search-bar";
+import { Box } from "@/components/ui/box";
+import { Center } from "@/components/ui/center";
 import { Grid, GridItem } from "@/components/ui/grid";
+import { Heading } from "@/components/ui/heading";
+import { Icon } from "@/components/ui/icon";
+import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getProduct } from "@/store/slices/product/product-action";
 import { router } from "expo-router";
-import { Plus } from "lucide-react-native";
+import { PackageX, Plus } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
 import Animated, {
@@ -91,21 +95,38 @@ export default function ProductTab() {
         stickyHeaderIndices={[1]}
       >
         <Grid _extra={{ className: "grid-cols-2" }} className="gap-2 mt-5 px-5">
-          {products.map((product, index) => (
-            <GridItem
-              key={product.id}
-              _extra={{
-                className: viewMode === "grid" ? "col-span-1" : "col-span-2",
-              }}
-            >
-              <ProductCard
-                product={product}
-                index={index}
-                viewMode={viewMode}
-                onPress={() => router.push(`/pages/product/${product.id}`)}
-              />
-            </GridItem>
-          ))}
+          {products.length > 0 ? (
+            products.map((product, index) => (
+              <GridItem
+                key={product.id}
+                _extra={{
+                  className: viewMode === "grid" ? "col-span-1" : "col-span-2",
+                }}
+              >
+                <ProductCard
+                  product={product}
+                  index={index}
+                  viewMode={viewMode}
+                  onPress={() => router.push(`/pages/product/${product.id}`)}
+                />
+              </GridItem>
+            ))
+          ) : (
+            <Center className="flex-1 px-6 pt-20">
+              <Box className="items-center gap-4">
+                <Box className="bg-blue-100 p-5 rounded-full">
+                  <Icon as={PackageX} size="xl" className="text-primary-300" />
+                </Box>
+
+                <Heading className="text-center">Produk Kosong</Heading>
+
+                <Text className="text-center text-gray-500">
+                  Belum ada produk yang tersedia. Tambahkan produk untuk mulai
+                  berjualan.
+                </Text>
+              </Box>
+            </Center>
+          )}
         </Grid>
       </Animated.ScrollView>
     </>

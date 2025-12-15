@@ -2,10 +2,10 @@ import { LinearGradient } from "expo-linear-gradient";
 import { ComponentType } from "react";
 import { ColorValue, TouchableOpacity, View } from "react-native";
 import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withSpring,
-    withTiming,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
 } from "react-native-reanimated";
 import { Text } from "./ui/text";
 
@@ -40,45 +40,47 @@ export default function ActionTile({
   };
 
   return (
-    <Animated.View style={[animatedStyle, { width: "100%" }]}>
-      <TouchableOpacity
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        onPress={onPress}
-        activeOpacity={0.9}
-      >
-        <LinearGradient
-          colors={gradient}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={{
-            height: large ? 120 : 140,
-            borderRadius: 10,
-            padding: 20,
-            justifyContent: "space-between",
-          }}
+    <View>
+      <Animated.View style={[animatedStyle, { width: "100%" }]}>
+        <TouchableOpacity
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+          onPress={onPress}
+          activeOpacity={0.9}
         >
-          <Icon size={large ? 28 : 32} color="rgba(255, 255, 255, 0.9)" />
-          <View>
-            <Text
-              className="text-white mb-1font-bold"
-              style={{
-                fontSize: large ? 14 : 16,
-              }}
-            >
-              {title}
-            </Text>
-            <Text
-              className="text-white font-semibold"
-              style={{
-                fontSize: large ? 12 : 14,
-              }}
-            >
-              {subtitle}
-            </Text>
-          </View>
-        </LinearGradient>
-      </TouchableOpacity>
-    </Animated.View>
+          <LinearGradient
+            colors={gradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{
+              height: large ? 120 : 140,
+              borderRadius: 10,
+              padding: 20,
+              justifyContent: "space-between",
+            }}
+          >
+            <Icon size={large ? 28 : 32} color="rgba(255, 255, 255, 0.9)" />
+            <View>
+              <Text
+                className="text-white mb-1font-bold"
+                style={{
+                  fontSize: large ? 14 : 16,
+                }}
+              >
+                {title}
+              </Text>
+              <Text
+                className="text-white font-semibold"
+                style={{
+                  fontSize: large ? 12 : 14,
+                }}
+              >
+                {subtitle}
+              </Text>
+            </View>
+          </LinearGradient>
+        </TouchableOpacity>
+      </Animated.View>
+    </View>
   );
 }

@@ -7,7 +7,7 @@ export const productSlice = createSlice({
   initialState: {
     viewMode: "grid" as "list" | "grid",
     selectedCategory: "all",
-
+    barcode: "",
     categories: [
       { id: "all", name: "All", color: "#FF6B6B" },
       { id: "beverages", name: "Beverages", color: "#4ECDC4" },
@@ -18,11 +18,14 @@ export const productSlice = createSlice({
     products: [] as IProduct[],
     photoProducts: [] as string[],
     uoms: ["Pcs", "Boks", "Liter", "Gram", "KG"],
-    product: null as IProduct | null
+    product: null as IProduct | null,
   },
   reducers: {
     setProduct: (state, action) => {
       state.products = action.payload;
+    },
+    setBarcode: (state, action) => {
+      state.barcode = action.payload;
     },
     setViewMode: (state, action) => {
       state.viewMode = action.payload;
@@ -46,21 +49,20 @@ export const productSlice = createSlice({
     },
   },
   extraReducers: (builder) =>
-    builder.addCase(
-      getProduct.fulfilled,
-      (state, action) => {
-        state.products = action.payload?.map((e)=>({
-          ...e,
-          photos: JSON.parse(e.photos)
-        })) ?? [];
-      }
-    )
-    .addCase(getProductDetail.fulfilled,(state, action)=>{
-      state.product = {
-        ...action.payload,
-        photos: JSON.parse(action.payload.photos),
-      };
-    }),
+    builder
+      .addCase(getProduct.fulfilled, (state, action) => {
+        state.products =
+          action.payload?.map((e) => ({
+            ...e,
+            photos: JSON.parse(e.photos),
+          })) ?? [];
+      })
+      .addCase(getProductDetail.fulfilled, (state, action) => {
+        state.product = {
+          ...action.payload,
+          photos: JSON.parse(action.payload.photos),
+        };
+      }),
 });
 
 export const {
@@ -71,5 +73,6 @@ export const {
   removePhoto,
   resetPhotoProduct,
   setPhotoProducts,
+  setBarcode,
 } = productSlice.actions;
 export default productSlice.reducer;

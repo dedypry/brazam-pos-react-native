@@ -13,7 +13,12 @@ import {
   AccordionTitleText,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Button, ButtonSpinner, ButtonText } from "@/components/ui/button";
+import {
+  Button,
+  ButtonIcon,
+  ButtonSpinner,
+  ButtonText,
+} from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Heading } from "@/components/ui/heading";
 import { HStack } from "@/components/ui/hstack";
@@ -29,11 +34,17 @@ import { getProductDetail } from "@/store/slices/product/product-action";
 import {
   removePhoto,
   resetPhotoProduct,
+  setBarcode,
   setPhotoProducts,
 } from "@/store/slices/product/product-slice";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { router, useLocalSearchParams } from "expo-router";
-import { ArrowLeft, ChevronDownIcon, ChevronUpIcon } from "lucide-react-native";
+import {
+  ArrowLeft,
+  BarcodeIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+} from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -44,19 +55,19 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { createProductSchema } from "./product-schema";
+import { createProductSchema } from "../../../schemas/product-schema";
 
 export default function ProductAdd() {
-  const { id } = useLocalSearchParams<{ id?: string }>();
+  const { id, cameraBack } = useLocalSearchParams();
   const [isLoading, setLoading] = useState(false);
-  const { photoProducts, categories, uoms, product } = useAppSelector(
+  const { photoProducts, categories, uoms, product, barcode } = useAppSelector(
     (state) => state.product
   );
 
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (id) {
+    if (id && !cameraBack) {
       dispatch(getProductDetail(id as any));
     }
   }, [id]);
@@ -71,6 +82,7 @@ export default function ProductAdd() {
     formState: { errors },
     watch,
     setValue,
+    reset,
   } = useForm({
     resolver: yupResolver(createProductSchema),
     mode: "onChange",
@@ -82,7 +94,9 @@ export default function ProductAdd() {
 
   useEffect(() => {
     if (id && product) {
-      dispatch(setPhotoProducts(product.photos));
+      if (!cameraBack) {
+        dispatch(setPhotoProducts(product.photos));
+      }
       setValue("name", product.name);
       setValue("price", product.price?.toString());
 
@@ -95,8 +109,16 @@ export default function ProductAdd() {
 
       setValue("is_stock", product.is_stock === 1);
       setValue("is_product_show", product.is_product_show === 1);
+      setValue("stock", product.stock?.toString());
+      setValue("barcode",product?.barcode!)
     }
   }, [product]);
+
+  useEffect(() => {
+    if (barcode) {
+      setValue("barcode", barcode);
+    }
+  }, [barcode]);
 
   async function onSubmit(data: any) {
     setLoading(true);
@@ -115,6 +137,8 @@ export default function ProductAdd() {
         await knex("products").insert(payload);
       }
       dispatch(resetPhotoProduct());
+      dispatch(setBarcode(""));
+      reset();
       goBack();
     } catch (error) {
       console.error("ERROR", error);
@@ -160,6 +184,7 @@ export default function ProductAdd() {
                                 uri: e,
                               }}
                               className="rounded-md w-20 h-20"
+                              alt={`product-${i}`}
                             />
                             <TouchableOpacity
                               onPress={() => dispatch(removePhoto(e))}
@@ -174,7 +199,7 @@ export default function ProductAdd() {
                           </View>
                         ))}
                         <View>
-                          <AddCardButton />
+                          <AddCardButton id={id as any} />
                         </View>
                       </HStack>
                       {errors.photos && (
@@ -219,6 +244,35 @@ export default function ProductAdd() {
                       </InputSlot>
                     }
                     onInput={field.onChange}
+                  />
+                )}
+              />
+
+              <Controller
+                control={control}
+                name="barcode"
+                render={({ field }) => (
+                  <FormTextInput
+                    value={field.value}
+                    onChangeText={field.onChange}
+                    label="Barcode"
+                    isRequired
+                    placeholder="Masukan Barcode"
+                    isInvalid={!!errors.name}
+                    errorMessage={errors.name?.message}
+                    suppix={
+                      <InputSlot className="pr-1">
+                        <Button
+                          size="sm"
+                          onPress={() =>
+                            router.push("/pages/product/scan-barcode")
+                          }
+                        >
+                          <ButtonIcon as={BarcodeIcon} size="lg" />
+                          <ButtonText>Scan</ButtonText>
+                        </Button>
+                      </InputSlot>
+                    }
                   />
                 )}
               />

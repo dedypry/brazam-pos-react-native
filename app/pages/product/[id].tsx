@@ -1,3 +1,4 @@
+import ConfirmAlert from "@/components/confirm-alert";
 import ListText from "@/components/list-text";
 import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
 import { Divider } from "@/components/ui/divider";
@@ -12,11 +13,11 @@ import knex from "@/db/config";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getProductDetail } from "@/store/slices/product/product-action";
 import { formatNumber } from "@/utils/helpers/formater";
-import { GlassView } from "expo-glass-effect";
+import { notify } from "@/utils/helpers/notify";
 import { router, useLocalSearchParams } from "expo-router";
 import { ChevronLeftIcon, Edit, Trash2 } from "lucide-react-native";
 import { useEffect, useState } from "react";
-import { Dimensions, TouchableOpacity, View } from "react-native";
+import { Dimensions, ScrollView, TouchableOpacity, View } from "react-native";
 import { useSharedValue } from "react-native-reanimated";
 import Carousel from "react-native-reanimated-carousel";
 
@@ -26,6 +27,7 @@ export default function ProductDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { product } = useAppSelector((state) => state.product);
 
+  const [showAlert, setShowAlert] = useState(false);
   const [isStock, setStock] = useState(product?.is_stock === 1);
   const [isShow, setShow] = useState(product?.is_product_show === 1);
 
@@ -37,12 +39,12 @@ export default function ProductDetail() {
     }
   }, [id]);
 
-  useEffect(()=>{
-    if(product){
-        setShow(product.is_product_show === 1)
-        setStock(product.is_stock === 1)
+  useEffect(() => {
+    if (product) {
+      setShow(product.is_product_show === 1);
+      setStock(product.is_stock === 1);
     }
-  },[product])
+  }, [product]);
 
   async function update(index: string, value: boolean) {
     if (id) {
@@ -51,8 +53,8 @@ export default function ProductDetail() {
         .update({
           [index]: value ? 1 : 0,
         })
-        .then(()=>{
-            console.log("SUCCESS UPDATE", index, id)
+        .then(() => {
+          console.log("SUCCESS UPDATE", index, id);
         })
         .catch(() => {
           if (index === "is_product_show") {
@@ -65,8 +67,35 @@ export default function ProductDetail() {
     }
   }
 
+  async function handleDelete() {
+    console.log("ID", id);
+
+    await knex("products")
+      .where("id", id)
+      .del()
+      .then(async () => {
+        setShowAlert(false);
+        await notify({
+          title: "Notification",
+          body: "Berhasil menghapus product",
+        });
+        router.replace("/products");
+      })
+      .catch(async () => {
+        await notify({
+          title: "Notification",
+          body: "Gagal menghapus product",
+        });
+      });
+  }
+
   return (
     <View className="flex-1 bg-white">
+      <ConfirmAlert
+        show={showAlert}
+        onClose={() => setShowAlert(false)}
+        onConfirm={handleDelete}
+      />
       <Carousel
         loop={product?.photos?.length! > 1}
         width={width}
@@ -80,6 +109,7 @@ export default function ProductDetail() {
               source={{ uri: item }}
               resizeMode="cover"
               className="w-full h-full"
+              alt="Image"
             />
           </View>
         )}
@@ -89,9 +119,9 @@ export default function ProductDetail() {
       />
       <HStack className="pt-14 pb-4 px-5 absolute top-0 w-full justify-between items-center">
         <TouchableOpacity onPress={() => router.push("/(tabs)/products")}>
-          <GlassView style={{ padding: 10, borderRadius: 100, zIndex: 50 }}>
+          <View className="p-2 bg-white/50" style={{ borderRadius: 100 }}>
             <Icon as={ChevronLeftIcon} size="xl" />
-          </GlassView>
+          </View>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() =>
@@ -101,7 +131,8 @@ export default function ProductDetail() {
             })
           }
         >
-          <GlassView
+          <View
+            className="bg-warning-500/90"
             style={{
               paddingHorizontal: 10,
               paddingVertical: 5,
@@ -110,73 +141,81 @@ export default function ProductDetail() {
               gap: 5,
               alignItems: "center",
             }}
-            glassEffectStyle="clear"
           >
-            <Icon as={Edit} />
-            <Text className="font-bold">Edit Product</Text>
-          </GlassView>
+            <Icon as={Edit} className="text-white" />
+            <Text className="font-bold text-white">Edit Product</Text>
+          </View>
         </TouchableOpacity>
       </HStack>
-      <VStack className="mt-5 px-5 gap-2">
-        <Heading size="lg" className="font-semibold">
-          {product?.name}
-        </Heading>
-        <Text className="font-semibold">
-          Rp {formatNumber(product?.price!)} /{product?.uom}{" "}
-        </Text>
 
-        <Text className="font-semibold">
-          Stok {formatNumber(product?.stock!)}
-        </Text>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{
+        paddingBottom:30
+      }}>
+        <VStack className="mt-5 px-5 gap-2">
+          <Heading size="lg" className="font-semibold">
+            {product?.name}
+          </Heading>
+          <Text className="font-semibold">
+            Rp {formatNumber(product?.price!)} /{product?.uom}{" "}
+          </Text>
 
-        <Text>{product?.description || "Tidak ada deskripsi"}</Text>
-      </VStack>
-      <Divider className="my-3" />
-      <VStack className="px-5 gap-4">
-        <HStack className="justify-between">
-          <VStack className="gap-2 flex-1">
-            <Heading size="lg" className="font-semibold">
-              Ketersediaan Produk
-            </Heading>
-            <Text>Kelola ketersediaan produk di BrazamPos</Text>
-          </VStack>
-          <Switch
-            value={isStock}
-            onToggle={(val) => {
-                setStock(val)
+          <Text className="font-semibold">
+            Stok {formatNumber(product?.stock!)}
+          </Text>
+
+          <Text>{product?.description || "Tidak ada deskripsi"}</Text>
+        </VStack>
+        <Divider className="my-3" />
+        <VStack className="px-5 gap-4">
+          <HStack className="justify-between">
+            <VStack className="gap-2 flex-1">
+              <Heading size="lg" className="font-semibold">
+                Ketersediaan Produk
+              </Heading>
+              <Text>Kelola ketersediaan produk di BrazamPos</Text>
+            </VStack>
+            <Switch
+              value={isStock}
+              onToggle={(val) => {
+                setStock(val);
                 update("is_stock", val);
-            }}
-          />
-        </HStack>
-        <HStack className="justify-between">
-          <VStack className="gap-2 flex-1">
-            <Heading size="lg" className="font-semibold">
-              Tampilkan di Microsite
-            </Heading>
-            <Text>
-              Tampilkan produk ini di katalog online agar pelanggan dapat
-              melihatnya secara online
-            </Text>
-          </VStack>
-          <Switch
-            value={isShow}
-            onToggle={(val) => {
-                setShow(val)
+              }}
+            />
+          </HStack>
+          <HStack className="justify-between">
+            <VStack className="gap-2 flex-1">
+              <Heading size="lg" className="font-semibold">
+                Tampilkan di Microsite
+              </Heading>
+              <Text>
+                Tampilkan produk ini di katalog online agar pelanggan dapat
+                melihatnya secara online
+              </Text>
+            </VStack>
+            <Switch
+              value={isShow}
+              onToggle={(val) => {
+                setShow(val);
                 update("is_product_show", val);
-            }}
-          />
-        </HStack>
-      </VStack>
-      <Divider className="my-3" />
-      <VStack className="gap-2 mb-5">
-        <ListText title="Categori" value={product?.category!} />
-        <ListText title="SKU Number" value={product?.sku!} />
-      </VStack>
+              }}
+            />
+          </HStack>
+        </VStack>
+        <Divider className="my-3" />
+        <VStack className="gap-2 mb-5">
+          <ListText title="Categori" value={product?.category!} />
+          <ListText title="SKU Number" value={product?.sku!} />
+        </VStack>
 
-      <Button variant="link" action="negative">
-        <ButtonIcon as={Trash2} />
-        <ButtonText>Hapus Product</ButtonText>
-      </Button>
+        <Button
+          variant="link"
+          action="negative"
+          onPress={() => setShowAlert(true)}
+        >
+          <ButtonIcon as={Trash2} />
+          <ButtonText>Hapus Product</ButtonText>
+        </Button>
+      </ScrollView>
     </View>
   );
 }

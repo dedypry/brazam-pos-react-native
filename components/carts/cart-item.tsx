@@ -1,12 +1,13 @@
-import { IProductItem } from "@/utils/interfaces/product";
+import knex from "@/db/config";
+import { SalesModel } from "@/db/models/sales";
+import { formatNumber } from "@/utils/helpers/formater";
+import { ISales } from "@/utils/interfaces/product";
 import { Minus, Plus, Trash2 } from "lucide-react-native";
+import { useEffect, useState } from "react";
 import { TouchableOpacity, useColorScheme, View } from "react-native";
 import Animated, {
   SlideInRight,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  withTiming,
+  useSharedValue
 } from "react-native-reanimated";
 import { Card } from "../ui/card";
 import { HStack } from "../ui/hstack";
@@ -15,7 +16,7 @@ import { Text } from "../ui/text";
 import { VStack } from "../ui/vstack";
 
 interface Props {
-  item: IProductItem;
+  item: ISales;
   onUpdateQuantity: (id: number, qty: number) => void;
   onRemove: (id: number) => void;
   index: number;
@@ -26,45 +27,36 @@ export default function CartItem({
   onRemove,
   index,
 }: Props) {
+  const [qty, setQty] = useState(item.quantity);
   const scale = useSharedValue(1);
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
+  useEffect(() => {
+    if (item.quantity) {
+      setQty(item.quantity);
+    }
+  }, [item.quantity]);
 
-  const handlePressIn = () => {
-    scale.value = withTiming(0.98, { duration: 100 });
-  };
+  async function handleQty(val: number) {
+    setQty(val);
 
-  const handlePressOut = () => {
-    scale.value = withSpring(1, { stiffness: 300, damping: 10 });
-  };
+    try {
+      if (val === 0) {
+        onRemove(item.id);
+      } else {
+        await knex<SalesModel>("sales").where("id", item.id).update({
+          quantity: val,
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   return (
-    <Animated.View
-      entering={SlideInRight.delay(index * 100)}
-      style={animatedStyle}
-    >
-      <TouchableOpacity
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        activeOpacity={0.9}
-        // style={{
-        //   backgroundColor: isDark ? "#1E1E1E" : "#FFFFFF",
-        //   borderRadius: 16,
-        //   padding: 16,
-        //   marginBottom: 16,
-        //   flexDirection: "row",
-        //   alignItems: "center",
-        //   shadowColor: "#000",
-        //   shadowOffset: { width: 0, height: 2 },
-        //   shadowOpacity: isDark ? 0.3 : 0.1,
-        //   shadowRadius: 8,
-        //   elevation: 3,
-        // }}
-      >
+    <View>
+      <Animated.View entering={SlideInRight.delay(index * 100)}>
         <Card
           className="mb-2 rounded-xl p-0"
           style={{
@@ -77,18 +69,19 @@ export default function CartItem({
         >
           <HStack>
             <Image
-              source={{ uri: item.image }}
+              source={{ uri: item.product.photos[0] }}
               className="w-28 aspect-square rounded-xl"
+              alt={item.product.name}
             />
             <VStack className="flex-1 ml-4 py-2 gap-1">
-              <Text className="text-md font-bold">{item.name}</Text>
+              <Text className="text-md font-bold">{item.product.name}</Text>
               <Text className="text-lg font-extrabold text-success-300">
-                Rp {item.price}
+                Rp {formatNumber(item.product.price)}
               </Text>
 
               <View style={{ flexDirection: "row", alignItems: "center" }}>
                 <TouchableOpacity
-                  onPress={() => onUpdateQuantity(item.id, item.quantity - 1)}
+                  onPress={() => handleQty(qty - 1)}
                   style={{
                     backgroundColor: "#EF4444",
                     width: 32,
@@ -111,11 +104,11 @@ export default function CartItem({
                     textAlign: "center",
                   }}
                 >
-                  {item.quantity}
+                  {qty}
                 </Text>
 
                 <TouchableOpacity
-                  onPress={() => onUpdateQuantity(item.id, item.quantity + 1)}
+                  onPress={() => handleQty(qty + 1)}
                   style={{
                     backgroundColor: "#10B981",
                     width: 32,
@@ -132,7 +125,10 @@ export default function CartItem({
 
             <View className="items-end justify-center mr-2">
               <Text className="text-lg font-bold">
-                Rp {(parseFloat(item.price) * item.quantity).toFixed(2)}
+                Rp{" "}
+                {formatNumber(
+                  parseFloat(item.product.price.toString()) * item.quantity
+                )}
               </Text>
 
               <TouchableOpacity
@@ -146,7 +142,7 @@ export default function CartItem({
             </View>
           </HStack>
         </Card>
-      </TouchableOpacity>
-    </Animated.View>
+      </Animated.View>
+    </View>
   );
 }

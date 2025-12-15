@@ -16,4 +16,5 @@ export const createProductSchema = yup.object({
     otherwise: (schema) => schema.optional(),
   }),
   sku: yup.string(),
+  barcode: yup.string(),
 });
