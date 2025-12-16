@@ -1,18 +1,21 @@
-import knex from "../config";
+import { sql } from "drizzle-orm";
+import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { productsSchema } from "../schema";
 
 
-async function createTableSales() {
-    const hasSales = await knex.schema.hasTable("sales");
-    if (!hasSales) {
-      await knex.schema.createTable("sales", (table) => {
-        table.increments("id").primary();
-        table.string("product_id").references("id").inTable("products");
-        table.integer("quantity").defaultTo(1);
-        table.string("status").defaultTo("pending");
-        table.timestamps(true, true);
-      });
-      console.log("Table Sales created!");
-    }
-}
+export default sqliteTable("sales", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
 
-export default createTableSales
+  productId: integer("product_id").references(() => productsSchema.id),
+
+  quantity: integer("quantity").default(1),
+  status: text("status").default("pending"),
+
+  createdAt: integer("created_at", { mode: "timestamp" }).default(
+    sql`(strftime('%s','now'))`
+  ),
+
+  updatedAt: integer("updated_at", { mode: "timestamp" }).default(
+    sql`(strftime('%s','now'))`
+  ),
+});

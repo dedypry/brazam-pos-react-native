@@ -7,55 +7,59 @@ import { Heading } from "@/components/ui/heading";
 import { HStack } from "@/components/ui/hstack";
 import { Pressable } from "@/components/ui/pressable";
 import { VStack } from "@/components/ui/vstack";
-import knex from "@/db/config";
-import { SalesModel } from "@/db/models/sales";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { getCart } from "@/store/slices/cart/cart-action";
-import { getProduct } from "@/store/slices/product/product-action";
-import { IProduct } from "@/utils/interfaces/product";
+import { db } from "@/db";
+import { productsSchema, salesSchema } from "@/db/schema";
+import { and, eq, InferSelectModel } from "drizzle-orm";
+import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { router } from "expo-router";
 import { X } from "lucide-react-native";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ScrollView, View } from "react-native";
 
 export default function ProductModal() {
-  const { products } = useAppSelector((state) => state.product);
   const [searchQuery, setSearchQuery] = useState("");
-  const dispatch = useAppDispatch();
 
-  useEffect(() => {
-    dispatch(getProduct());
-  }, []);
+  const { data: products } = useLiveQuery(db.query.productsSchema.findMany());
 
-  async function onAddToCart(product: IProduct, selected: boolean) {
+  async function onAddToCart(
+    product: InferSelectModel<typeof productsSchema>,
+    selected: boolean
+  ) {
     try {
       if (selected) {
-        const salesData = await knex<SalesModel>("sales")
-          .where("product_id", product.id)
-          .first();
+        const salesData = await db.query.salesSchema.findFirst({
+          where: (sales, { eq }) =>
+            and(eq(sales.productId, product.id), eq(sales.status, "pending")),
+        });
 
         if (salesData) {
-          await knex<SalesModel>("sales")
-            .where("product_id", product.id)
-            .update({
-              quantity: salesData.quantity + 1,
+          await db
+            .update(salesSchema)
+            .set({
+              quantity: (salesData.quantity || 0) + 1,
               status: "pending",
-            });
+            })
+            .where(eq(salesSchema.id, salesData.id));
         } else {
-          await knex<SalesModel>("sales").insert({
-            product_id: product.id,
+          await db.insert(salesSchema).values({
+            productId: product.id,
             quantity: 1,
             status: "pending",
           });
         }
       } else {
-        await knex("sales").where("id", product.id).del();
+        await db
+          .delete(salesSchema)
+          .where(
+            and(
+              eq(salesSchema.productId, product.id),
+              eq(salesSchema.status, "pending")
+            )
+          );
       }
       console.log("SUCCESS");
     } catch (error) {
       console.error("ERROR", error);
-    }finally{
-      dispatch(getCart())
     }
   }
   return (
@@ -90,7 +94,7 @@ export default function ProductModal() {
           </Grid>
         </ScrollView>
       </VStack>
-      <View className="absolute bottom-10 w-full">
+      <View className="absolute bottom-16 w-full">
         <Center className="px-10">
           <Button className="w-full" onPress={() => router.replace("/sales")}>
             <ButtonText>Checkout</ButtonText>

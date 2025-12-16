@@ -28,7 +28,8 @@ import { InputSlot } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
-import knex from "@/db/config";
+import { db } from "@/db";
+import { productsSchema } from "@/db/schema";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getProductDetail } from "@/store/slices/product/product-action";
 import {
@@ -38,6 +39,8 @@ import {
   setPhotoProducts,
 } from "@/store/slices/product/product-slice";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { eq } from "drizzle-orm";
+import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { router, useLocalSearchParams } from "expo-router";
 import {
   ArrowLeft,
@@ -58,11 +61,14 @@ import {
 import { createProductSchema } from "../../../schemas/product-schema";
 
 export default function ProductAdd() {
-  const { id, cameraBack } = useLocalSearchParams();
+  const { id, cameraBack, barcodeData } = useLocalSearchParams();
   const [isLoading, setLoading] = useState(false);
-  const { photoProducts, categories, uoms, product, barcode } = useAppSelector(
+  const { photoProducts, product, barcode } = useAppSelector(
     (state) => state.product
   );
+
+  const { data: categories } = useLiveQuery(db.query.categorySchema.findMany());
+  const { data: uoms } = useLiveQuery(db.query.uomSchema.findMany());
 
   const dispatch = useAppDispatch();
 
@@ -73,7 +79,7 @@ export default function ProductAdd() {
   }, [id]);
 
   const dataCategories = categories
-    .filter((e) => e.id !== "all")
+    .filter((e) => e.id !== 1)
     .map((e) => ({ label: e.name, value: e.id }));
 
   const {
@@ -107,39 +113,35 @@ export default function ProductAdd() {
 
       setValue("sku", product?.sku || "");
 
-      setValue("is_stock", product.is_stock === 1);
-      setValue("is_product_show", product.is_product_show === 1);
+      setValue("is_stock", product.isStock);
+      setValue("is_product_show", product.isProductShow);
       setValue("stock", product.stock?.toString());
-      setValue("barcode", product?.barcode!);
+      setValue("barcode", (barcodeData || product?.barcode!) as any);
     }
   }, [product]);
 
   useEffect(() => {
-    if (barcode) {
-      setValue("barcode", barcode);
+    if (barcode || barcodeData) {
+      setValue("barcode", (barcode || barcodeData) as any);
     }
-  }, [barcode]);
+  }, [barcode, barcodeData]);
 
   async function onSubmit(data: any) {
     setLoading(true);
-    const payload = {
-      ...data,
-      is_product_show: data.is_product_show ? 1 : 0,
-      is_stock: data.is_stock ? 1 : 0,
-      modal: Number(data.modal),
-      photos: JSON.stringify(data.photos),
-      price: Number(data.price),
-    };
     try {
       if (id) {
-        await knex("products").update(payload).where("id", id);
+        await db
+          .update(productsSchema)
+          .set(data)
+          .where(eq(productsSchema.id, id as any));
       } else {
-        await knex("products").insert(payload);
+        await db.insert(productsSchema).values(data);
       }
       dispatch(resetPhotoProduct());
       dispatch(setBarcode(""));
       reset();
       goBack();
+      console.log("SUCCESS", id);
     } catch (error) {
       console.error("ERROR", error);
     } finally {
@@ -148,6 +150,7 @@ export default function ProductAdd() {
   }
 
   function goBack() {
+    console.log("ID", id);
     router.replace(id ? `/pages/product/${id}` : "/(tabs)/products");
   }
   return (
@@ -268,7 +271,10 @@ export default function ProductAdd() {
                         <Button
                           size="sm"
                           onPress={() =>
-                            router.push("/pages/product/scan-barcode")
+                            router.push({
+                              pathname: "/pages/product/scan-barcode",
+                              params: { id },
+                            })
                           }
                         >
                           <ButtonIcon as={BarcodeIcon} size="lg" />
@@ -347,7 +353,10 @@ export default function ProductAdd() {
                           label="Satuan"
                           isInvalid={!!errors.uom}
                           errorMessage={errors.uom?.message}
-                          items={uoms as any}
+                          items={uoms.map((e) => ({
+                            label: e.name,
+                            value: e.id,
+                          }))}
                         />
                       )}
                     />

@@ -130,7 +130,9 @@ export default function SalesTab() {
           <HeaderTitle
             gradient={["#45B7D1", "#4ECDC4"]}
             title="Sales"
+            icon={Plus}
             subtitle={`${carts.length} items in inventory`}
+            onPress={() => router.push("/product-modal")}
             actions={
               <HStack>
                 <Button size="sm" onPress={() => setScanBarcode(true)}>

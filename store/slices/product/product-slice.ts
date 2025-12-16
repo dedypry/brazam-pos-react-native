@@ -1,5 +1,7 @@
+import { productsSchema } from "@/db/schema";
 import { IProduct } from "@/utils/interfaces/product";
 import { createSlice } from "@reduxjs/toolkit";
+import { InferSelectModel } from "drizzle-orm";
 import { getProduct, getProductDetail } from "./product-action";
 
 export const productSlice = createSlice({
@@ -18,7 +20,7 @@ export const productSlice = createSlice({
     products: [] as IProduct[],
     photoProducts: [] as string[],
     uoms: ["Pcs", "Boks", "Liter", "Gram", "KG"],
-    product: null as IProduct | null,
+    product: null as InferSelectModel<typeof productsSchema> | null,
   },
   reducers: {
     setProduct: (state, action) => {
@@ -58,10 +60,7 @@ export const productSlice = createSlice({
           })) ?? [];
       })
       .addCase(getProductDetail.fulfilled, (state, action) => {
-        state.product = {
-          ...action.payload,
-          photos: JSON.parse(action.payload.photos),
-        };
+        state.product = action.payload as any
       }),
 });
 

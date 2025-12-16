@@ -1,36 +1,41 @@
-import knex from "../config";
-import createTableSales from "./sales.migration";
+import { sql } from "drizzle-orm";
+import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
-async function createTables() {
-  const hasProducts = await knex.schema.hasTable("products");
-  if (!hasProducts) {
-    await knex.schema.createTable("products", (table) => {
-      table.increments("id").primary();
-      table.string("company_id").nullable();
-      table.string("name").notNullable();
-      table.string("price").notNullable();
-      table.string("stock");
-      table.boolean("is_stock").defaultTo(false);
-      table.jsonb("photos").defaultTo([]);
-      table.text("description").nullable();
-      table.boolean("is_product_show").defaultTo(true);
-      table.integer("modal").defaultTo(0);
-      table.string("category").nullable();
-      table.string("uom").nullable();
-      table.string("sku").nullable();
-      table.string("barcode").nullable();
-      table.timestamp('deleted_at')
-      table.timestamps(true, true);
-    });
-    console.log("Table created!");
-  }
+export default sqliteTable("products", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
 
-  await createTableSales()
-  
-  // await knex.schema.alterTable("products", (table) => {
+  companyId: text("company_id"),
 
-  // });
-  // console.log("ALTER CREATED")
-}
+  name: text("name").notNull(),
+  price: real("price").notNull(),
 
-export default createTables;
+  stock: real("stock"),
+  isStock: integer("is_stock", { mode: "boolean" }).notNull().default(false),
+
+  photos: text("photos", { mode: "json" })
+    .$type<string[]>()
+    .default(sql`'[]'`),
+
+  description: text("description"),
+
+  isProductShow: integer("is_product_show", { mode: "boolean" })
+    .notNull()
+    .default(true),
+
+  modal: integer("modal").default(0),
+
+  category: text("category"),
+  uom: text("uom"),
+  sku: text("sku"),
+  barcode: text("barcode"),
+
+  deletedAt: integer("deleted_at", { mode: "timestamp" }),
+
+  createdAt: integer("created_at", { mode: "timestamp" }).default(
+    sql`(strftime('%s','now'))`
+  ),
+
+  updatedAt: integer("updated_at", { mode: "timestamp" }).default(
+    sql`(strftime('%s','now'))`
+  ),
+});

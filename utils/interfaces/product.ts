@@ -1,31 +1,11 @@
-export interface IProduct {
-  id?: number;
+import { productsSchema, salesSchema } from "@/db/schema";
+import { InferSelectModel } from "drizzle-orm";
 
-  name: string;
-  price: number; // sesuai schema (string)
-  stock?: number | null;
-
-  is_stock: 0 | 1; // SQLite boolean
-  is_product_show: 0 | 1; // SQLite boolean
-
-  photos: string[]; // di app (di DB → JSON string)
-
-  description?: string | null;
-  modal: number;
-
-  category?: string | null;
-  uom?: string | null;
-  sku?: string | null;
-  barcode?: string | null;
-
-  created_at?: string;
-  updated_at?: string;
+export interface IProduct extends InferSelectModel<typeof productsSchema> {
 }
 
-export interface ISales {
-  id: number;
-  quantity: number;
-  product: IProduct;
+export interface ISales extends InferSelectModel<typeof salesSchema> {
+  product: InferSelectModel<typeof productsSchema>;
 }
 export interface IProductItem {
   quantity: number;

@@ -1,8 +1,9 @@
-import knex from "@/db/config";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { setCart } from "@/store/slices/cart/cart-slice";
+import { db } from "@/db";
+import { salesSchema } from "@/db/schema";
 import { formatNumber } from "@/utils/helpers/formater";
-import { useState } from "react";
+import { ISales } from "@/utils/interfaces/product";
+import { inArray } from "drizzle-orm";
+import { useEffect, useState } from "react";
 import { Alert, View } from "react-native";
 import ConfirmAlert from "../confirm-alert";
 import { Button, ButtonText } from "../ui/button";
@@ -11,26 +12,22 @@ import { HStack } from "../ui/hstack";
 import { Text } from "../ui/text";
 import { VStack } from "../ui/vstack";
 
-export default function ButtonComplete() {
-  const { carts } = useAppSelector((state) => state.cart);
+interface Props {
+  carts: ISales[];
+}
+export default function ButtonComplete({ carts }: Props) {
   const [isComplete, setIsComplete] = useState(false);
+  const [total, setTotal] = useState(0);
 
-  const dispatch = useAppDispatch();
-
-  const calculateSubtotal = () => {
-    return carts.reduce(
-      (sum, item) => sum + item.product.price * item.quantity,
-      0
-    );
-  };
-
-  const calculateTax = () => {
-    return calculateSubtotal() * 0.08; // 8% tax
-  };
-
-  const calculateTotal = () => {
-    return formatNumber(calculateSubtotal() + calculateTax());
-  };
+  useEffect(() => {
+    if (carts.length > 0) {
+      let totalPrice = 0;
+      carts.map((e) => {
+        totalPrice += (e.quantity || 1) * e.product.price;
+      });
+      setTotal(totalPrice);
+    }
+  }, [carts]);
 
   const handleCheckout = () => {
     if (carts.length === 0) {
@@ -45,11 +42,14 @@ export default function ButtonComplete() {
     const ids = carts.map((e) => e.id);
 
     try {
-      await knex("sales").whereIn("id", ids).update({
-        status: "finish",
-      });
-      setIsComplete(false)
-      dispatch(setCart([]));
+      await db
+        .update(salesSchema)
+        .set({
+          status: "finish",
+        })
+        .where(inArray(salesSchema.id, ids));
+      // .where(sql`id IN(${ids})`);
+      setIsComplete(false);
     } catch (error) {
       console.error(error);
     }
@@ -67,15 +67,14 @@ export default function ButtonComplete() {
         onClose={() => setIsComplete(false)}
         onConfirm={handleFinish}
       >
-        <Text className="font-semibold">Total : Rp {calculateTotal()}</Text>
+        <Text className="font-semibold">Total : Rp {formatNumber(total)}</Text>
       </ConfirmAlert>
       <View className="absolute bottom-0 w-full px-5 py-3">
         <HStack className="pb-2 items-center bg-white p-4 rounded-md shadow-sm">
           <VStack className="flex-1 pr-10">
             <Heading size="sm">Total</Heading>
             <Heading size="md" className="text-success-300">
-              {" "}
-              Rp {calculateTotal()}
+              Rp {formatNumber(total)}
             </Heading>
           </VStack>
           <Button onPress={handleCheckout}>

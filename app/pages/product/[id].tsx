@@ -9,14 +9,14 @@ import { Image } from "@/components/ui/image";
 import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
-import knex from "@/db/config";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { getProductDetail } from "@/store/slices/product/product-action";
+import { db } from "@/db";
+import { productsSchema } from "@/db/schema";
 import { formatNumber } from "@/utils/helpers/formater";
-import { notify } from "@/utils/helpers/notify";
+import { eq, InferSelectModel } from "drizzle-orm";
+import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { router, useLocalSearchParams } from "expo-router";
 import { ChevronLeftIcon, Edit, Trash2 } from "lucide-react-native";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Dimensions, ScrollView, TouchableOpacity, View } from "react-native";
 import { useSharedValue } from "react-native-reanimated";
 import Carousel from "react-native-reanimated-carousel";
@@ -24,68 +24,38 @@ import Carousel from "react-native-reanimated-carousel";
 const width = Dimensions.get("window").width;
 
 export default function ProductDetail() {
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const { product } = useAppSelector((state) => state.product);
+  const { id } = useLocalSearchParams();
+
+  const { data } = useLiveQuery(
+    db
+      .select()
+      .from(productsSchema)
+      .where(eq(productsSchema.id, Number(id)))
+      .limit(1)
+  );
+
+  const product: InferSelectModel<typeof productsSchema> | null =
+    data.length > 0 ? data[0] : null;
 
   const [showAlert, setShowAlert] = useState(false);
-  const [isStock, setStock] = useState(product?.is_stock === 1);
-  const [isShow, setShow] = useState(product?.is_product_show === 1);
 
   const progress = useSharedValue<number>(0);
-  const dispatch = useAppDispatch();
-  useEffect(() => {
-    if (id) {
-      dispatch(getProductDetail(id as any));
-    }
-  }, [id]);
-
-  useEffect(() => {
-    if (product) {
-      setShow(product.is_product_show === 1);
-      setStock(product.is_stock === 1);
-    }
-  }, [product]);
 
   async function update(index: string, value: boolean) {
     if (id) {
-      await knex("products")
-        .where("id", id)
-        .update({
-          [index]: value ? 1 : 0,
-        })
-        .then(() => {
-          console.log("SUCCESS UPDATE", index, id);
-        })
-        .catch(() => {
-          if (index === "is_product_show") {
-            setShow(!isShow);
-          } else {
-            setStock(!isStock);
-          }
-        });
-      dispatch(getProductDetail(id as any));
+      await db.update(productsSchema).set({
+        [index]: value,
+      });
     }
   }
 
   async function handleDelete() {
-    console.log("ID", id);
-
-    await knex("products")
-      .where("id", id)
-      .del()
-      .then(async () => {
-        setShowAlert(false);
-        await notify({
-          title: "Notification",
-          body: "Berhasil menghapus product",
-        });
+    await db
+      .delete(productsSchema)
+      .where(eq(productsSchema.id, id as any))
+      .then(() => {
+        console.log("SUCCESS");
         router.replace("/products");
-      })
-      .catch(async () => {
-        await notify({
-          title: "Notification",
-          body: "Gagal menghapus product",
-        });
       });
   }
 
@@ -148,9 +118,12 @@ export default function ProductDetail() {
         </TouchableOpacity>
       </HStack>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{
-        paddingBottom:30
-      }}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{
+          paddingBottom: 50,
+        }}
+      >
         <VStack className="mt-5 px-5 gap-2">
           <Heading size="lg" className="font-semibold">
             {product?.name}
@@ -175,11 +148,8 @@ export default function ProductDetail() {
               <Text>Kelola ketersediaan produk di BrazamPos</Text>
             </VStack>
             <Switch
-              value={isStock}
-              onToggle={(val) => {
-                setStock(val);
-                update("is_stock", val);
-              }}
+              value={product?.isStock}
+              onToggle={(val) => update("isStock", val)}
             />
           </HStack>
           <HStack className="justify-between">
@@ -193,11 +163,8 @@ export default function ProductDetail() {
               </Text>
             </VStack>
             <Switch
-              value={isShow}
-              onToggle={(val) => {
-                setShow(val);
-                update("is_product_show", val);
-              }}
+              value={product?.isProductShow}
+              onToggle={(val) => update("isProductShow", val)}
             />
           </HStack>
         </VStack>

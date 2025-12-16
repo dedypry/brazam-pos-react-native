@@ -9,8 +9,11 @@ import { Heading } from "@/components/ui/heading";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
+import { db } from "@/db";
+import { productsSchema } from "@/db/schema";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getProduct } from "@/store/slices/product/product-action";
+import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { router } from "expo-router";
 import { PackageX, Plus } from "lucide-react-native";
 import { useEffect, useState } from "react";
@@ -24,9 +27,12 @@ import Animated, {
 } from "react-native-reanimated";
 
 export default function ProductTab() {
-  const { products, viewMode } = useAppSelector((state) => state.product);
+  const { viewMode } = useAppSelector((state) => state.product);
   const [searchQuery, setSearchQuery] = useState("");
   const scrollY = useSharedValue(0);
+
+  const { data: products } = useLiveQuery(db.select().from(productsSchema));
+
 
   const dispatch = useAppDispatch();
 
@@ -104,7 +110,7 @@ export default function ProductTab() {
                 }}
               >
                 <ProductCard
-                  product={product}
+                  product={product as any}
                   index={index}
                   viewMode={viewMode}
                   onPress={() => router.push(`/pages/product/${product.id}`)}

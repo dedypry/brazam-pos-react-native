@@ -1,6 +1,7 @@
+import { productsSchema } from "@/db/schema";
 import { colors } from "@/utils/configs/colors";
 import { formatNumber } from "@/utils/helpers/formater";
-import { IProduct } from "@/utils/interfaces/product";
+import { InferSelectModel } from "drizzle-orm";
 import * as Haptics from "expo-haptics";
 import { CheckCheckIcon, MoreVertical } from "lucide-react-native";
 import { useState } from "react";
@@ -17,7 +18,7 @@ import { Image } from "../ui/image";
 import { Text } from "../ui/text";
 import { VStack } from "../ui/vstack";
 interface Props {
-  product: IProduct;
+  product: InferSelectModel<typeof productsSchema>;
   index: number;
   viewMode?: "list" | "grid";
   onPress?: (selected: boolean) => void;
@@ -58,7 +59,7 @@ export default function ProductCard({
         <Card className="p-0 rounded-lg">
           <HStack className="items-center">
             <Image
-              source={{ uri: product.photos[0] }}
+              source={{ uri: product?.photos?.[0] }}
               className="rounded-lg w-28 aspect-square"
               style={{
                 backgroundColor: isDark ? "#2D2D2D" : "#F3F4F6",
@@ -74,7 +75,7 @@ export default function ProductCard({
                   Rp {formatNumber(product.price)}
                 </Text>
                 <Text className="text-xs font-semibold text-nowrap flex-1">
-                  {product.is_stock ? `${product.stock} in stock` : ""}
+                  {product.isStock ? `${product.stock} in stock` : ""}
                 </Text>
               </HStack>
             </VStack>
@@ -104,7 +105,7 @@ export default function ProductCard({
       <Card className="p-0 relative">
         <Image
           source={{
-            uri: product.photos[0],
+            uri: product.photos?.[0],
           }}
           className="mb-2 h-[120px] w-full rounded-md"
           alt="image"
@@ -132,7 +133,7 @@ export default function ProductCard({
                 color: product?.stock! > 10 ? "#10B981" : "#EF4444",
               }}
             >
-              {product.is_stock ? `${product.stock} in stock` : ""}
+              {product.isStock ? `${product.stock} in stock` : ""}
             </Text>
           </HStack>
         </VStack>

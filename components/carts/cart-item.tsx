@@ -1,19 +1,18 @@
-import knex from "@/db/config";
-import { SalesModel } from "@/db/models/sales";
+import { db } from "@/db";
+import { salesSchema } from "@/db/schema";
 import { formatNumber } from "@/utils/helpers/formater";
 import { ISales } from "@/utils/interfaces/product";
+import { eq } from "drizzle-orm";
 import { Minus, Plus, Trash2 } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { TouchableOpacity, useColorScheme, View } from "react-native";
-import Animated, {
-  SlideInRight,
-  useSharedValue
-} from "react-native-reanimated";
+import Animated, { SlideInRight } from "react-native-reanimated";
 import { Card } from "../ui/card";
 import { HStack } from "../ui/hstack";
 import { Image } from "../ui/image";
 import { Text } from "../ui/text";
 import { VStack } from "../ui/vstack";
+import ModalEditQty from "./update-qty";
 
 interface Props {
   item: ISales;
@@ -27,8 +26,8 @@ export default function CartItem({
   onRemove,
   index,
 }: Props) {
-  const [qty, setQty] = useState(item.quantity);
-  const scale = useSharedValue(1);
+  const [openModal, setOpenModal] = useState(false);
+  const [qty, setQty] = useState(item.quantity || 1);
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
 
@@ -39,15 +38,16 @@ export default function CartItem({
   }, [item.quantity]);
 
   async function handleQty(val: number) {
-    setQty(val);
-
     try {
       if (val === 0) {
         onRemove(item.id);
       } else {
-        await knex<SalesModel>("sales").where("id", item.id).update({
-          quantity: val,
-        });
+        await db
+          .update(salesSchema)
+          .set({
+            quantity: val,
+          })
+          .where(eq(salesSchema.id, item.id));
       }
     } catch (error) {
       console.error(error);
@@ -69,7 +69,7 @@ export default function CartItem({
         >
           <HStack>
             <Image
-              source={{ uri: item.product.photos[0] }}
+              source={{ uri: item.product.photos?.[0] }}
               className="w-28 aspect-square rounded-xl"
               alt={item.product.name}
             />
@@ -93,19 +93,7 @@ export default function CartItem({
                 >
                   <Minus size={16} color="white" />
                 </TouchableOpacity>
-
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontWeight: "600",
-                    color: isDark ? "rgba(255, 255, 255, 0.9)" : "#1F2937",
-                    marginHorizontal: 16,
-                    minWidth: 30,
-                    textAlign: "center",
-                  }}
-                >
-                  {qty}
-                </Text>
+                <ModalEditQty qty={qty} id={item.id} />
 
                 <TouchableOpacity
                   onPress={() => handleQty(qty + 1)}
@@ -127,7 +115,8 @@ export default function CartItem({
               <Text className="text-lg font-bold">
                 Rp{" "}
                 {formatNumber(
-                  parseFloat(item.product.price.toString()) * item.quantity
+                  parseFloat(item.product.price.toString()) *
+                    (item.quantity || 1)
                 )}
               </Text>
 

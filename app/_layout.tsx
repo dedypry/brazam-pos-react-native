@@ -4,7 +4,7 @@ import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
-import createTables from "@/db/migrations/product.migration";
+import { runMigrations } from "@/db/migrate";
 import "@/global.css";
 import { persistor, store } from "@/store";
 import { setupNotificationChannel } from "@/utils/configs/notifucation";
@@ -20,8 +20,10 @@ export const unstable_settings = {
 export default function RootLayout() {
   useEffect(() => {
     setupNotificationChannel();
-    createTables();
     Notifications.requestPermissionsAsync();
+    runMigrations()
+      .then(() => console.log("DB migrated"))
+      .catch(console.error);
   }, []);
   return (
     <Provider store={store}>
@@ -29,7 +31,7 @@ export default function RootLayout() {
         <GluestackUIProvider mode="light">
           <ThemeProvider value={DefaultTheme}>
             <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="(tabs)" initialParams={{ screen: "sales" }} />
               <Stack.Screen
                 name="modal"
                 options={{ presentation: "modal", title: "Modal" }}
