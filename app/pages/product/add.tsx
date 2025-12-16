@@ -110,7 +110,7 @@ export default function ProductAdd() {
       setValue("is_stock", product.is_stock === 1);
       setValue("is_product_show", product.is_product_show === 1);
       setValue("stock", product.stock?.toString());
-      setValue("barcode",product?.barcode!)
+      setValue("barcode", product?.barcode!);
     }
   }, [product]);
 
@@ -164,7 +164,10 @@ export default function ProductAdd() {
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
           <Card className="mt-2 px-5">
             <VStack className="gap-3">
               <View className="pb-2">
@@ -278,7 +281,7 @@ export default function ProductAdd() {
               />
             </VStack>
           </Card>
-          <Accordion className="mt-2" >
+          <Accordion className="mt-2">
             <AccordionItem value="show">
               <AccordionHeader>
                 <AccordionTrigger>
