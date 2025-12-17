@@ -1,17 +1,21 @@
+import { db } from "@/db";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { setSelectedCategory, setViewMode } from "@/store/slices/product/product-slice";
-import { Grid, List } from "lucide-react-native";
 import {
-  TouchableOpacity,
-  useColorScheme
-} from "react-native";
+  setSelectedCategory,
+  setViewMode,
+} from "@/store/slices/product/product-slice";
+import { useLiveQuery } from "drizzle-orm/expo-sqlite";
+import { Grid, List } from "lucide-react-native";
+import { TouchableOpacity, useColorScheme } from "react-native";
 import FilterCategory from "../filter-categories";
 import { HStack } from "../ui/hstack";
 
 export default function ChipCategories() {
   const colorScheme = useColorScheme();
-  const { viewMode, selectedCategory, categories } = useAppSelector((state) => state.product);
- 
+  const { viewMode, selectedCategory } = useAppSelector(
+    (state) => state.product
+  );
+  const { data: categories } = useLiveQuery(db.query.categorySchema.findMany());
   const dispatch = useAppDispatch();
 
   const isDark = colorScheme === "dark";
@@ -19,7 +23,7 @@ export default function ChipCategories() {
   return (
     <HStack className="gap-4">
       <FilterCategory
-        data={categories}
+        data={categories as any}
         selected={selectedCategory}
         setSelected={(val) => dispatch(setSelectedCategory(val.id))}
       />

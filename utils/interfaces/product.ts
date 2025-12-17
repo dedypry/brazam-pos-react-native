@@ -26,7 +26,7 @@ export interface ITransaction {
 }
 
 export interface ITrxFilter {
-  id: string;
+  id: number;
   name: string;
   color: string;
 }

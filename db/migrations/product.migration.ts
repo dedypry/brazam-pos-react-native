@@ -4,7 +4,7 @@ import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
 export default sqliteTable("products", {
   id: integer("id").primaryKey({ autoIncrement: true }),
 
-  companyId: text("company_id"),
+  companyId: integer("company_id"),
 
   name: text("name").notNull(),
   price: real("price").notNull(),

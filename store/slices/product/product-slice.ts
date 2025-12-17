@@ -8,15 +8,9 @@ export const productSlice = createSlice({
   name: "product",
   initialState: {
     viewMode: "grid" as "list" | "grid",
-    selectedCategory: "all",
+    selectedCategory: 1,
     barcode: "",
-    categories: [
-      { id: "all", name: "All", color: "#FF6B6B" },
-      { id: "beverages", name: "Beverages", color: "#4ECDC4" },
-      { id: "food", name: "Food", color: "#45B7D1" },
-      { id: "desserts", name: "Desserts", color: "#96CEB4" },
-      { id: "pastries", name: "Pastries", color: "#FECA57" },
-    ],
+    categories: [],
     products: [] as IProduct[],
     photoProducts: [] as string[],
     uoms: ["Pcs", "Boks", "Liter", "Gram", "KG"],

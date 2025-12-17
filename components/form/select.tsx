@@ -1,5 +1,6 @@
 import { ISelectProps } from "@gluestack-ui/core/lib/esm/select/creator/types";
 import { ReactElement } from "react";
+import { View } from "react-native";
 import {
   FormControl,
   FormControlError,
@@ -40,6 +41,7 @@ export interface PropsSelectCustom extends ISelectProps {
   isRequired?: boolean;
   errorMessage?: string;
   textHelper?: string;
+  contentRight?: ReactElement;
   variant?: IVariant;
   items?: IItems[];
 }
@@ -56,6 +58,7 @@ export default function FormSelect({
   textHelper,
   variant,
   items,
+  contentRight,
   ...inputProps
 }: PropsSelectCustom) {
   return (
@@ -69,6 +72,9 @@ export default function FormSelect({
         {label && (
           <FormControlLabel>
             <FormControlLabelText>{label}</FormControlLabelText>
+            <View className="flex-1" />
+
+            {contentRight}
           </FormControlLabel>
         )}
         <Select {...(inputProps as any)}>

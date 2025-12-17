@@ -24,6 +24,7 @@ export default function TabLayout() {
         tabBarIconStyle: {
           marginTop: 4,
         },
+        popToTopOnBlur: true,
       }}
     >
       <Tabs.Screen

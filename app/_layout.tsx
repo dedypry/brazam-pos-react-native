@@ -31,7 +31,7 @@ export default function RootLayout() {
         <GluestackUIProvider mode="light">
           <ThemeProvider value={DefaultTheme}>
             <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="(tabs)" initialParams={{ screen: "sales" }} />
+              <Stack.Screen name="(tabs)" />
               <Stack.Screen
                 name="modal"
                 options={{ presentation: "modal", title: "Modal" }}
@@ -40,14 +40,12 @@ export default function RootLayout() {
                 name="pages/product/scan-barcode"
                 options={{
                   presentation: "modal",
-                  headerShown: false,
                 }}
               />
               <Stack.Screen
                 name="product-modal"
                 options={{
                   presentation: "modal",
-                  headerShown: false,
                 }}
               />
             </Stack>

@@ -23,11 +23,11 @@ import { ScrollView, View } from "react-native";
 export default function HomeScreen() {
   const quickActions = [
     {
-      title: "New Sale",
-      subtitle: "Start transaction",
+      title: "Kasir",
+      subtitle: "Mulai Transaksi",
       icon: CreditCard,
       gradient: ["#FF6B6B", "#FF8E8E"],
-      onPress: () => router.push("/(tabs)/sales"),
+      onPress: () => router.push("/pages/transaction"),
       large: true,
     },
     {

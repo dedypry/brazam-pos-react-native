@@ -45,7 +45,8 @@ export default function ProductDetail() {
     if (id) {
       await db.update(productsSchema).set({
         [index]: value,
-      });
+      })
+      .where(eq(productsSchema.id, id as any));
     }
   }
 

@@ -3,6 +3,8 @@ import FormSelect from "@/components/form/select";
 import FormTextArea from "@/components/form/text-area";
 import FormTextInput from "@/components/form/text-input";
 import AddCardButton from "@/components/products/add-card-button";
+import ModalAddCategories from "@/components/products/modal-add-categories";
+import ModalAddUom from "@/components/products/modal-add-uom";
 import {
   Accordion,
   AccordionContent,
@@ -61,8 +63,10 @@ import {
 import { createProductSchema } from "../../../schemas/product-schema";
 
 export default function ProductAdd() {
-  const { id, cameraBack, barcodeData } = useLocalSearchParams();
+  const { id, cameraBack, barcodeData, backUrl } = useLocalSearchParams();
   const [isLoading, setLoading] = useState(false);
+  const [isModalCategory, setModalCategory] = useState(false);
+  const [isModalUom, setModalUom] = useState(false);
   const { photoProducts, product, barcode } = useAppSelector(
     (state) => state.product
   );
@@ -80,7 +84,7 @@ export default function ProductAdd() {
 
   const dataCategories = categories
     .filter((e) => e.id !== 1)
-    .map((e) => ({ label: e.name, value: e.id }));
+    .map((e) => e.name);
 
   const {
     control,
@@ -150,11 +154,23 @@ export default function ProductAdd() {
   }
 
   function goBack() {
-    console.log("ID", id);
-    router.replace(id ? `/pages/product/${id}` : "/(tabs)/products");
+    router.replace(
+      id
+        ? `/pages/product/${id}`
+        : backUrl
+        ? (backUrl as any)
+        : "/(tabs)/products"
+    );
   }
   return (
     <View className="flex-1">
+      <ModalAddCategories
+        show={isModalCategory}
+        setShow={setModalCategory}
+        categories={categories}
+      />
+      <ModalAddUom show={isModalUom} setShow={setModalUom} uoms={uoms} />
+
       <HStack className="pt-14 pb-4 px-5 items-center bg-white">
         <Pressable onPress={goBack}>
           <HStack className="items-center gap-2">
@@ -217,7 +233,6 @@ export default function ProductAdd() {
                   )}
                 />
               </View>
-
               <Controller
                 control={control}
                 name="name"
@@ -261,9 +276,8 @@ export default function ProductAdd() {
                   <FormTextInput
                     value={field.value}
                     onChangeText={field.onChange}
-                    label="Barcode"
-                    isRequired
-                    placeholder="Masukan Barcode"
+                    label="Barcode (Optional)"
+                    placeholder="Masukan Kode Barcode"
                     isInvalid={!!errors.name}
                     errorMessage={errors.name?.message}
                     suppix={
@@ -335,10 +349,19 @@ export default function ProductAdd() {
                           selectedValue={field.value}
                           placeholder="Masukan Kategori Produk"
                           label="Kategori"
-                          items={dataCategories}
+                          items={dataCategories as any}
                           onValueChange={field.onChange}
                           isInvalid={!!errors.category}
                           errorMessage={errors.category?.message}
+                          contentRight={
+                            <TouchableOpacity
+                              onPress={() => setModalCategory(true)}
+                            >
+                              <Text className="text-primary-500 font-semibold">
+                                Tambah Kategori
+                              </Text>
+                            </TouchableOpacity>
+                          }
                         />
                       )}
                     />
@@ -353,10 +376,14 @@ export default function ProductAdd() {
                           label="Satuan"
                           isInvalid={!!errors.uom}
                           errorMessage={errors.uom?.message}
-                          items={uoms.map((e) => ({
-                            label: e.name,
-                            value: e.id,
-                          }))}
+                          items={uoms.map((e) => e.name) as any}
+                          contentRight={
+                            <TouchableOpacity onPress={() => setModalUom(true)}>
+                              <Text className="text-primary-500 font-semibold">
+                                Tambah Satuan
+                              </Text>
+                            </TouchableOpacity>
+                          }
                         />
                       )}
                     />

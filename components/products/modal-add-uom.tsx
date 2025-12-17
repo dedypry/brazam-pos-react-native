@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { categorySchema } from "@/db/schema";
+import { uomSchema } from "@/db/schema";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { eq, InferSelectModel } from "drizzle-orm";
 import { Controller, useForm } from "react-hook-form";
@@ -21,7 +21,7 @@ import {
 } from "../ui/modal";
 
 const catSchema = yup.object({
-  name: yup.string().required("Kategori wajib diisi"),
+  name: yup.string().required("Satuan wajib diisi"),
 });
 
 type CatFormValues = yup.InferType<typeof catSchema>;
@@ -29,12 +29,12 @@ type CatFormValues = yup.InferType<typeof catSchema>;
 interface Props {
   show: boolean;
   setShow: (val: boolean) => void;
-  categories: InferSelectModel<typeof categorySchema>[];
+  uoms: InferSelectModel<typeof uomSchema>[];
 }
-export default function ModalAddCategories({
+export default function ModalAddUom({
   show,
   setShow,
-  categories,
+  uoms,
 }: Props) {
   const {
     control,
@@ -47,13 +47,13 @@ export default function ModalAddCategories({
   });
 
   async function onSubmit(data: CatFormValues) {
-    await db.insert(categorySchema).values(data);
+    await db.insert(uomSchema).values(data);
     reset();
     setShow(false);
   }
 
   async function onDelete(id: number) {
-    await db.delete(categorySchema).where(eq(categorySchema.id, id));
+    await db.delete(uomSchema).where(eq(uomSchema.id, id));
   }
 
   return (
@@ -79,7 +79,7 @@ export default function ModalAddCategories({
             name="name"
             render={({ field }) => (
               <FormTextInput
-                placeholder="Masukan Nama Kategory"
+                placeholder="Masukan Nama Satuan"
                 value={field.value}
                 onChangeText={field.onChange}
                 isInvalid={!!errors.name}
@@ -89,7 +89,7 @@ export default function ModalAddCategories({
           />
 
           <HStack className="flex-wrap gap-2 pt-3">
-            {categories.map((e, i) => (
+            {uoms.map((e, i) => (
               <Chip title={e.name} key={i} onClose={() => onDelete(e.id)} />
             ))}
           </HStack>

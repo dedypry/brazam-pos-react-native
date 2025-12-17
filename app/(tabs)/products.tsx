@@ -1,13 +1,9 @@
 import HeaderTitle from "@/components/header-title";
 import ChipCategories from "@/components/products/chip-categories";
 import ProductCard from "@/components/products/product-card";
+import ProductEmpty from "@/components/products/product-empty";
 import SearchBar from "@/components/search-bar";
-import { Box } from "@/components/ui/box";
-import { Center } from "@/components/ui/center";
 import { Grid, GridItem } from "@/components/ui/grid";
-import { Heading } from "@/components/ui/heading";
-import { Icon } from "@/components/ui/icon";
-import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { db } from "@/db";
 import { productsSchema } from "@/db/schema";
@@ -15,7 +11,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getProduct } from "@/store/slices/product/product-action";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { router } from "expo-router";
-import { PackageX, Plus } from "lucide-react-native";
+import { Plus } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
 import Animated, {
@@ -32,7 +28,6 @@ export default function ProductTab() {
   const scrollY = useSharedValue(0);
 
   const { data: products } = useLiveQuery(db.select().from(productsSchema));
-
 
   const dispatch = useAppDispatch();
 
@@ -118,24 +113,10 @@ export default function ProductTab() {
               </GridItem>
             ))
           ) : (
-            <Center className="flex-1 px-6 pt-20">
-              <Box className="items-center gap-4">
-                <Box className="bg-blue-100 p-5 rounded-full">
-                  <Icon as={PackageX} size="xl" className="text-primary-300" />
-                </Box>
-
-                <Heading className="text-center">Produk Kosong</Heading>
-
-                <Text className="text-center text-gray-500">
-                  Belum ada produk yang tersedia. Tambahkan produk untuk mulai
-                  berjualan.
-                </Text>
-              </Box>
-            </Center>
+            <ProductEmpty />
           )}
         </Grid>
       </Animated.ScrollView>
     </>
-    // </ScrollView>
   );
 }

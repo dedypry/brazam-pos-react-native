@@ -8,7 +8,6 @@ import {
   FormControlHelper,
   FormControlHelperText,
   FormControlLabel,
-  FormControlLabelAstrick,
   FormControlLabelText,
 } from "../ui/form-control";
 import { AlertCircleIcon } from "../ui/icon";
@@ -59,12 +58,9 @@ export default function FormTextInput({
             <FormControlLabelText>{label}</FormControlLabelText>
           </FormControlLabel>
         )}
-        <Input variant={variant} size={size}>
+        <Input variant={variant} size={size} className={inputProps.className}>
           {prefix}
-          <InputField
-            className={isTextCenter ? "text-center" : ""}
-            {...(inputProps as any)}
-          />
+          <InputField {...(inputProps as any)} />
           {suppix}
         </Input>
 

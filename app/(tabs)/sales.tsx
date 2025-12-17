@@ -90,7 +90,7 @@ export default function SalesTab() {
             productId: product.id,
             quantity: 1,
             status: "pending",
-          });
+          } as any);
         }
       } else {
         Alert.alert(

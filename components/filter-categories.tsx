@@ -10,7 +10,7 @@ import { Text } from "./ui/text";
 
 interface Props {
   data: ITrxFilter[];
-  selected: string;
+  selected: number;
   setSelected: (val: ITrxFilter) => void;
 }
 export default function FilterCategory({ data, selected, setSelected }: Props) {
@@ -25,11 +25,7 @@ export default function FilterCategory({ data, selected, setSelected }: Props) {
             onPress={() => setSelected(filter)}
             style={{
               backgroundColor:
-                selected === filter.id
-                  ? filter.color
-                  : isDark
-                  ? "#1E1E1E"
-                  : "#FFFFFF",
+                selected === filter.id ? filter.color || "#FF6B6B" : "#FFFFFF",
               // paddingHorizontal: 16,
               // paddingVertical: 8,
               borderRadius: 10,
