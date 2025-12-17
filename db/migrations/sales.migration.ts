@@ -13,7 +13,7 @@ export default sqliteTable("sales", {
   price: real("price").default(0),
   totalPrice: real("total_price").notNull(),
   note: text("note"),
-
+  type: text("type"),
   createdAt: integer("created_at", { mode: "timestamp" }).default(
     sql`(strftime('%s','now'))`
   ),

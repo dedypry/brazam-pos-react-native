@@ -1,8 +1,4 @@
-import {
-    ITransaction,
-    ITrxFilter,
-    ITrxTodayStat,
-} from "@/utils/interfaces/product";
+import { ITransaction, ITrxTodayStat } from "@/utils/interfaces/product";
 import { createSlice } from "@reduxjs/toolkit";
 
 export const transactionSlice = createSlice({
@@ -10,6 +6,23 @@ export const transactionSlice = createSlice({
   initialState: {
     selectedFilter: "all",
     searchQuery: "",
+    transaction: {
+      type: "input",
+      price: 0,
+      totalPrice: 0,
+      note: "",
+      customerId: null,
+      paymentMethod: "",
+      addtionalNote: "",
+      photo: "",
+    },
+    paymentMethod: [
+      { id: "cash", label: "Tunai" },
+      { id: "bank_transfer", label: "Transfer Bank" },
+      { id: "debit_card", label: "Kartu Debit" },
+      { id: "credit_card", label: "Kartu Kredit" },
+      { id: "other", label: "Lainnya" },
+    ],
     transactions: [
       {
         id: "001234",
@@ -20,47 +33,13 @@ export const transactionSlice = createSlice({
         customer: "John Doe",
         paymentMethod: "Credit Card",
       },
-      {
-        id: "001233",
-        type: "sale",
-        date: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
-        total: "23.75",
-        items: 2,
-        paymentMethod: "Cash",
-      },
-      {
-        id: "001232",
-        type: "sale",
-        date: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), // 4 hours ago
-        total: "67.20",
-        items: 5,
-        customer: "Jane Smith",
-        paymentMethod: "Credit Card",
-      },
-      {
-        id: "001231",
-        type: "sale",
-        date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // Yesterday
-        total: "12.99",
-        items: 1,
-        paymentMethod: "Mobile Pay",
-      },
-      {
-        id: "001230",
-        type: "sale",
-        date: new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString(), // Yesterday
-        total: "89.45",
-        items: 7,
-        customer: "Bob Johnson",
-        paymentMethod: "Credit Card",
-      },
     ] as ITransaction[],
     filters: [
       { id: "all", name: "All", color: "#FF6B6B" },
       { id: "today", name: "Today", color: "#4ECDC4" },
       { id: "week", name: "This Week", color: "#45B7D1" },
       { id: "month", name: "This Month", color: "#96CEB4" },
-    ] as ITrxFilter[],
+    ] as any[],
     todayStats: [
       {
         title: "Today's Revenue",
@@ -83,6 +62,22 @@ export const transactionSlice = createSlice({
     ] as ITrxTodayStat[],
   },
   reducers: {
+    setTransaction: (state, action) => {
+      state.transaction = { ...state.transaction, ...action.payload };
+    },
+    resetTransaction: (state) => {
+      state.transaction = {
+        type: "input",
+        price: 0,
+        totalPrice: 0,
+        note: "",
+        customerId: null,
+        paymentMethod: "",
+        addtionalNote: "",
+        photo: "",
+      };
+    },
+
     setTrx: (state, action) => {
       state.transactions = action.payload;
     },
@@ -95,5 +90,11 @@ export const transactionSlice = createSlice({
   },
 });
 
-export const { setTrx, setSelectedFilter, setSearchQuery } = transactionSlice.actions;
+export const {
+  setTrx,
+  setSelectedFilter,
+  setSearchQuery,
+  setTransaction,
+  resetTransaction,
+} = transactionSlice.actions;
 export default transactionSlice.reducer;

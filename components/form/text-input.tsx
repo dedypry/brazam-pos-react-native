@@ -26,7 +26,7 @@ export interface PropsTextInputCustom extends TextInputProps {
   errorMessage?: string;
   textHelper?: string;
   variant?: IVariant;
-  size?: "sm" | "md" | "lg" | "xl" | undefined;
+  size?: "sm" | "md" | "lg" | "xl" | "2xl" | undefined;
   isTextCenter?: boolean;
 }
 

@@ -23,7 +23,7 @@ export default function ButtonComplete({ carts }: Props) {
     if (carts.length > 0) {
       let totalPrice = 0;
       carts.map((e) => {
-        totalPrice += (e.quantity || 1) * e.product.price;
+        totalPrice += (e.quantity || 1) * (e.product?.price || 0);
       });
       setTotal(totalPrice);
     }

@@ -1,46 +1,28 @@
-import { Heading } from "@/components/ui/heading";
 import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { router, withLayoutContext } from "expo-router";
-import { Calculator, ChevronLeft, Package } from "lucide-react-native";
-import { TouchableOpacity, View } from "react-native";
+import { withLayoutContext } from "expo-router";
+import { Calculator, Package } from "lucide-react-native";
+import { View } from "react-native";
 
+import LayoutHeader from "@/components/layouts/header";
 import { Text } from "@/components/ui/text";
 import { colors } from "@/utils/configs/colors";
-import { useTabAnimation } from "@react-navigation/material-top-tabs";
 const { Navigator } = createMaterialTopTabNavigator();
 
 const TopTabs = withLayoutContext(Navigator);
 
 export default function TabLayout() {
-  const 
   return (
-    <>
-      <View className="bg-white pt-16 pb-4 px-5">
-        <HStack className="items-center gap-4">
-          <TouchableOpacity onPress={() => router.push("/")}>
-            <Icon as={ChevronLeft} size="xl" />
-          </TouchableOpacity>
-          <Heading className="font-semibold">Transaksi Baru</Heading>
-        </HStack>
-      </View>
+    <View className="bg-white flex-1">
+      <LayoutHeader title="Transaksi Baru" />
       <TopTabs
-        onLayout={(e)=>{
-          console.log("LAYOUT", e)
-        }}
-        onTouchMove={()=>{
-          console.log("BLUR")
-        }}
-        onTabSelect={(e)=>{
-          console.log("SEL",e)
-        }}
         screenOptions={{
           tabBarLabelStyle: {
             fontSize: 14,
             height: 40,
           },
-          sceneStyle: { paddingTop: 10 },
+          sceneStyle: { paddingTop: 10, backgroundColor: "white" },
           tabBarIndicatorStyle: {
             backgroundColor: colors.primary,
             height: 40,
@@ -48,7 +30,7 @@ export default function TabLayout() {
           },
           tabBarStyle: {
             marginTop: 10,
-            backgroundColor: colors.white,
+            backgroundColor: colors.tonalPrimary,
             marginHorizontal: 16,
             borderRadius: 100,
             height: 40,
@@ -60,7 +42,7 @@ export default function TabLayout() {
           tabBarIndicatorContainerStyle: {
             height: 40,
           },
-          tabBarLabel: ({ focused, children }) => {
+          tabBarLabel: ({ focused, children, color }) => {
             return (
               <HStack className="gap-2">
                 <Icon
@@ -91,6 +73,6 @@ export default function TabLayout() {
         />
         <TopTabs.Screen name="input" options={{ title: "Kalkulator" }} />
       </TopTabs>
-    </>
+    </View>
   );
 }

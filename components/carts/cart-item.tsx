@@ -69,14 +69,14 @@ export default function CartItem({
         >
           <HStack>
             <Image
-              source={{ uri: item.product.photos?.[0] }}
+              source={{ uri: item.product?.photos?.[0] }}
               className="w-28 aspect-square rounded-xl"
-              alt={item.product.name}
+              alt={item.product?.name}
             />
             <VStack className="flex-1 ml-4 py-2 gap-1">
-              <Text className="text-md font-bold">{item.product.name}</Text>
+              <Text className="text-md font-bold">{item.product?.name}</Text>
               <Text className="text-lg font-extrabold text-success-300">
-                Rp {formatNumber(item.product.price)}
+                Rp {formatNumber(item.product?.price)}
               </Text>
 
               <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -115,7 +115,7 @@ export default function CartItem({
               <Text className="text-lg font-bold">
                 Rp{" "}
                 {formatNumber(
-                  parseFloat(item.product.price.toString()) *
+                  parseFloat(item.product?.price.toString()) *
                     (item.quantity || 1)
                 )}
               </Text>

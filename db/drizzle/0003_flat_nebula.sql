@@ -1,0 +1,1 @@
+ALTER TABLE `transactions` ADD `subtotal` real DEFAULT 0 NOT NULL;

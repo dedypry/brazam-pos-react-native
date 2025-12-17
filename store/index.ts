@@ -19,7 +19,7 @@ const rootReducer = combineReducers({
 const persistConfig = {
   key: "root",
   storage: AsyncStorage,
-  whitelist: ["auth", "cart"], // pilih reducer yang ingin disimpan
+  whitelist: ["auth", "cart", "transaction"], // pilih reducer yang ingin disimpan
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
