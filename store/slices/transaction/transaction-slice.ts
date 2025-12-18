@@ -15,6 +15,9 @@ export const transactionSlice = createSlice({
       paymentMethod: "",
       addtionalNote: "",
       photo: "",
+      discount: 0,
+      discountType: "percentage",
+      additionFee:[],
     },
     paymentMethod: [
       { id: "cash", label: "Tunai" },
@@ -75,6 +78,9 @@ export const transactionSlice = createSlice({
         paymentMethod: "",
         addtionalNote: "",
         photo: "",
+        discount: 0,
+        discountType: "",
+        additionFee: [],
       };
     },
 

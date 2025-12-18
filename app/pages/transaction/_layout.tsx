@@ -2,26 +2,46 @@ import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { withLayoutContext } from "expo-router";
-import { Calculator, Package } from "lucide-react-native";
-import { View } from "react-native";
+import { Barcode, Calculator, Package } from "lucide-react-native";
+import { TouchableOpacity, View } from "react-native";
 
 import LayoutHeader from "@/components/layouts/header";
 import { Text } from "@/components/ui/text";
 import { colors } from "@/utils/configs/colors";
+import { useState } from "react";
 const { Navigator } = createMaterialTopTabNavigator();
 
 const TopTabs = withLayoutContext(Navigator);
 
 export default function TabLayout() {
+  const [isBarcode, setIsBarcode] = useState(true);
   return (
     <View className="bg-white flex-1">
-      <LayoutHeader title="Transaksi Baru" />
+      <LayoutHeader
+        title="Transaksi Baru"
+        actions={
+          isBarcode ? (
+            <TouchableOpacity>
+              <HStack className="bg-primary-500 px-3 py-1 rounded-md gap-2">
+                <Icon as={Barcode} className="text-white" />
+                <Text className="text-white" size="sm">
+                  Scan Barcode
+                </Text>
+              </HStack>
+            </TouchableOpacity>
+          ) : (
+            <View />
+          )
+        }
+      />
       <TopTabs
+        onTabSelect={({ index }) => setIsBarcode(index === 0)}
         screenOptions={{
           tabBarLabelStyle: {
             fontSize: 14,
             height: 40,
           },
+
           sceneStyle: { paddingTop: 10, backgroundColor: "white" },
           tabBarIndicatorStyle: {
             backgroundColor: colors.primary,

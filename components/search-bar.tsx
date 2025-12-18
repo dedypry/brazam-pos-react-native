@@ -14,7 +14,7 @@ export default function SearchBar({
       <InputSlot className="pl-3">
         <InputIcon as={Search} />
       </InputSlot>
-      <InputField placeholder="Search Product..." />
+      <InputField placeholder="Search Product..." {...props}/>
     </Input>
   );
 }

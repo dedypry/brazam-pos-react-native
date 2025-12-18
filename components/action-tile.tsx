@@ -64,7 +64,7 @@ export default function ActionTile({
               <Text
                 className="text-white mb-1font-bold"
                 style={{
-                  fontSize: large ? 14 : 16,
+                  fontSize: 16,
                 }}
               >
                 {title}
@@ -72,7 +72,7 @@ export default function ActionTile({
               <Text
                 className="text-white font-semibold"
                 style={{
-                  fontSize: large ? 12 : 14,
+                  fontSize: 14,
                 }}
               >
                 {subtitle}

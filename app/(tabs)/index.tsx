@@ -12,11 +12,11 @@ import { getGreeting } from "@/utils/helpers/greeting";
 import { router } from "expo-router";
 import {
   BarChart3,
-  CreditCard,
+  Computer,
   CrownIcon,
   Package,
   Settings,
-  Users,
+  Users
 } from "lucide-react-native";
 import { ScrollView, View } from "react-native";
 
@@ -25,7 +25,7 @@ export default function HomeScreen() {
     {
       title: "Kasir",
       subtitle: "Mulai Transaksi",
-      icon: CreditCard,
+      icon: Computer,
       gradient: ["#FF6B6B", "#FF8E8E"],
       onPress: () => router.push("/pages/transaction"),
       large: true,

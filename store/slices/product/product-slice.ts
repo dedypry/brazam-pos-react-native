@@ -47,11 +47,7 @@ export const productSlice = createSlice({
   extraReducers: (builder) =>
     builder
       .addCase(getProduct.fulfilled, (state, action) => {
-        state.products =
-          action.payload?.map((e) => ({
-            ...e,
-            photos: JSON.parse(e.photos),
-          })) ?? [];
+        state.products = action.payload as any
       })
       .addCase(getProductDetail.fulfilled, (state, action) => {
         state.product = action.payload as any

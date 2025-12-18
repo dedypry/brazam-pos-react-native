@@ -16,7 +16,6 @@
   },
   "dependencies": {
     "@expo/html-elements": "^0.12.5",
-    "@expo/knex-expo-sqlite-dialect": "^0.1.0",
     "@expo/vector-icons": "^15.0.3",
     "@gluestack-ui/core": "^3.0.12",
     "@gluestack-ui/utils": "^3.0.13",
@@ -52,7 +51,6 @@
     "expo-symbols": "~1.0.7",
     "expo-system-ui": "~6.0.8",
     "expo-web-browser": "~15.0.9",
-    "knex": "^3.1.0",
     "lucide-react-native": "^0.510.0",
     "nativewind": "^4.2.1",
     "react": "19.1.0",

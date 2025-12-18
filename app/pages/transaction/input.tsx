@@ -1,5 +1,5 @@
 import FormTextArea from "@/components/form/text-area";
-import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
+import { Button, ButtonText } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
@@ -7,6 +7,7 @@ import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setTransaction } from "@/store/slices/transaction/transaction-slice";
+import { colors } from "@/utils/configs/colors";
 import { formatNumber } from "@/utils/helpers/formater";
 import { router } from "expo-router";
 import { BanknoteArrowUp, Delete } from "lucide-react-native";
@@ -16,6 +17,7 @@ import {
   Platform,
   ScrollView,
   TouchableOpacity,
+  View,
 } from "react-native";
 
 export default function Input() {
@@ -204,21 +206,28 @@ export default function Input() {
                 );
               }}
             />
-            <Button
-              size="xl"
-              variant="outline"
-              disabled={Number(transaction.totalPrice) < 1}
-              onPress={handleNext}
-              action={`${
-                Number(transaction.totalPrice) < 1 ? "secondary" : "primary"
-              }`}
-            >
-              <ButtonIcon as={BanknoteArrowUp} />
-              <ButtonText>Lanjutkan Ke Pembayaran</ButtonText>
-            </Button>
           </VStack>
         </Card>
       </ScrollView>
+      <View className="absolute bottom-0 w-full bg-white shadow-sm pb-14 pt-5 px-5">
+        <Button
+          size="xl"
+          disabled={Number(transaction.totalPrice) < 1}
+          onPress={handleNext}
+          action={`${
+            Number(transaction.totalPrice) < 1 ? "secondary" : "primary"
+          }`}
+        >
+          <BanknoteArrowUp
+            color={
+              Number(transaction.totalPrice) < 1
+                ? colors.secondary
+                : colors.white
+            }
+          />
+          <ButtonText>Lanjutkan Pembayaran</ButtonText>
+        </Button>
+      </View>
     </KeyboardAvoidingView>
   );
 }

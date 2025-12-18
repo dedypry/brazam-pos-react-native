@@ -12,14 +12,16 @@ import { productsSchema, salesSchema } from "@/db/schema";
 import { formatNumber } from "@/utils/helpers/formater";
 import { and, eq, InferSelectModel } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
-import { MinusIcon, PlusIcon } from "lucide-react-native";
-import { View } from "react-native";
+import { MinusIcon, PlusIcon, Trash2 } from "lucide-react-native";
+import { TouchableOpacity, View } from "react-native";
+import { Divider } from "../ui/divider";
+import { Icon } from "../ui/icon";
 
 interface Props {
   product: InferSelectModel<typeof productsSchema>;
+  isDelete?: boolean;
 }
-export default function ProductCard({ product }: Props) {
-  // const [qty, setQty] = useState(0);
+export default function ProductCard({ product, isDelete }: Props) {
   const { data } = useLiveQuery(
     db.query.salesSchema.findFirst({
       where: (trx, { eq }) =>
@@ -64,84 +66,100 @@ export default function ProductCard({ product }: Props) {
     }
   }
 
-  return (
-    <Card className="p-0">
-      <HStack>
-        <Image
-          source={{
-            uri: product.photos?.[0],
-          }}
-          className="rounded-md object-cover aspect-square"
-        />
-        <HStack className="flex-1 items-center gap-2">
-          <VStack className="flex-1 ml-3 justify-between">
-            <Heading
-              className="font-semibold"
-              size="sm"
-              ellipsizeMode="tail"
-              numberOfLines={1}
-            >
-              {product.name}
-            </Heading>
-            <Heading className="font-semibold text-primary-300" size="sm">
-              Rp {formatNumber(product.price)}
-            </Heading>
+  async function handleDelete() {
+    await db.delete(salesSchema).where(eq(salesSchema.productId, product.id));
+  }
 
-            {product.isStock && (
-              <Text
-                size="xs"
-                italic
-                className={`${
-                  totalStock < 1 ? "text-error-500" : "text-success-500"
-                } `}
-              >
-                Stok : {totalStock}
-              </Text>
-            )}
-          </VStack>
-          <View
-            style={{
-              width: 130,
+  return (
+    <>
+      <Card className="p-0">
+        <HStack>
+          <Image
+            source={{
+              uri: product.photos?.[0],
             }}
-          >
-            <FormNumberInput
-              value={qty.toString()}
-              onInput={handleSetQty}
-              variant="paded"
-              className="rounded-full"
-              textAlign="center"
-              size="sm"
-              prefix={
-                <InputSlot>
-                  <Button
-                    size="xs"
-                    className="rounded-full bg-error-300"
-                    onPress={() => {
-                      handleSetQty(qty - 1);
-                    }}
-                  >
-                    <ButtonIcon as={MinusIcon} />
-                  </Button>
-                </InputSlot>
-              }
-              suppix={
-                <InputSlot>
-                  <Button
-                    size="xs"
-                    className="rounded-full bg-success-300"
-                    onPress={() => {
-                      console.log(qty + 1);
-                      handleSetQty(qty + 1);
-                    }}
-                  >
-                    <ButtonIcon as={PlusIcon} />
-                  </Button>
-                </InputSlot>
-              }
-            />
-          </View>
+            className="rounded-md object-cover aspect-square"
+          />
+          <HStack className="flex-1 items-center gap-2">
+            <VStack className="flex-1 ml-3 justify-between">
+              <Heading
+                className="font-semibold"
+                size="sm"
+                ellipsizeMode="tail"
+                numberOfLines={1}
+              >
+                {product.name}
+              </Heading>
+              <Heading className="font-semibold text-primary-300" size="sm">
+                Rp {formatNumber(product.price)}
+              </Heading>
+
+              {product.isStock && (
+                <Text
+                  size="xs"
+                  italic
+                  className={`${
+                    totalStock < 1 ? "text-error-500" : "text-success-500"
+                  } `}
+                >
+                  Stok : {totalStock}
+                </Text>
+              )}
+            </VStack>
+            <View
+              style={{
+                width: 130,
+                flexDirection: "column",
+                gap: 10,
+              }}
+            >
+              {isDelete && (
+                <View className="items-start">
+                  <TouchableOpacity onPress={handleDelete}>
+                    <Icon as={Trash2} className="text-error-500" />
+                  </TouchableOpacity>
+                </View>
+              )}
+              <FormNumberInput
+                value={qty.toString()}
+                onInput={handleSetQty}
+                variant="paded"
+                className="rounded-full"
+                textAlign="center"
+                size="sm"
+                prefix={
+                  <InputSlot>
+                    <Button
+                      size="xs"
+                      className="rounded-full bg-error-300"
+                      onPress={() => {
+                        handleSetQty(qty - 1);
+                      }}
+                    >
+                      <ButtonIcon as={MinusIcon} />
+                    </Button>
+                  </InputSlot>
+                }
+                suppix={
+                  <InputSlot>
+                    <Button
+                      size="xs"
+                      className="rounded-full bg-success-300"
+                      onPress={() => {
+                        console.log(qty + 1);
+                        handleSetQty(qty + 1);
+                      }}
+                    >
+                      <ButtonIcon as={PlusIcon} />
+                    </Button>
+                  </InputSlot>
+                }
+              />
+            </View>
+          </HStack>
         </HStack>
-      </HStack>
-    </Card>
+      </Card>
+      <Divider className="my-3" />
+    </>
   );
 }
